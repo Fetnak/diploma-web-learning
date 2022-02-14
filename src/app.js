@@ -1,14 +1,18 @@
-const express = require('express')
-const postgres = require('./db/postgres')
-const usersRouter = require('./routers/users')
+import express from "express";
+import postgres from "./db/postgres.js";
+// import usersRouter from "./router/users.js"
 
-const app = express()
+const app = express();
 
-app.use(express.json())
-app.use(usersRouter)
+export default app;
 
-postgres.query('SELECT NOW()', (err, res) => {
-    console.log(err, res.rows)
-})
+app.use(express.json());
+// app.use(usersRouter)
 
-module.exports = app
+postgres.query("SELECT NOW()", (err, res) => {
+  if (!err) {
+    console.log(res);
+  } else {
+    console.log(err);
+  }
+});

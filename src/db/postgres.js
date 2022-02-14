@@ -1,8 +1,11 @@
-const { Pool } = require('pg')
+import pg from "pg";
+import "../loadEnv.js";
 
 // eslint-disable-next-line no-undef
-const connectionString = process.env.PGURI
+const connectionString = process.env.PGURI;
 
-const pool = new Pool({connectionString})
+console.log(connectionString);
 
-module.exports = pool
+const pool = new pg.Pool({ connectionString });
+
+export default pool;

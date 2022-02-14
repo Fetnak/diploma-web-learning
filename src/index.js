@@ -1,12 +1,10 @@
-/* eslint-disable no-undef */
-if (process.env.NODE_ENV !== 'production') {
-    const path = require('path')
-    require('dotenv').config({ path: path.join(__dirname, '../config/dev.env'), debug: true });
-}
+import app from "./app.js";
+import "./loadEnv.js";
 
-const app = require('./app')
-const port = process.env.PORT
+const port = process.env.PORT;
+
+console.log(process.env.PGURI);
 
 app.listen(port, () => {
-    console.log('Server is up on port ' + port)
-})
+  console.log(`Server is up on port ${port}`);
+});
