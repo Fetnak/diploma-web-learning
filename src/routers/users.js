@@ -1,11 +1,10 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import validator from "validator";
-import postgres from "../db/postgres.js";
+// import postgres from "../db/postgres.js";
+import query from "../db/query.js";
 
 const router = new express.Router();
-
-export default router;
 
 // Create new user
 router.post("/users", async (req, res) => {
@@ -31,8 +30,7 @@ router.post("/users", async (req, res) => {
     role: req.body.role
   };
 
-  return postgres
-    .query(`INSERT INTO users (_login, _password, _name, email, role) VALUES ('${checkedValues.login}', '${checkedValues.password}', '${checkedValues.name}', '${checkedValues.email}', '${checkedValues.role}')`)
+  return query(req.ip, "INSERT INTO users (_login, _password, _name, email, role) VALUES ($1, $2, $3, $4, $5)", [checkedValues.login, checkedValues.password, checkedValues.name, checkedValues.email, checkedValues.role])
     .then((resp) => res.status(201).send(resp))
     .catch((e) => res.status(400).send(e));
 });
@@ -47,8 +45,9 @@ router.get("/users", async (req, res) => {
     return res.status(400).send({ error: "invalid values!" });
   }
 
-  return postgres
-    .query(`SELECT * FROM users WHERE _id = '${req.body.id}'`)
+  return query(req.ip, "SELECT * FROM users WHERE _id = $1", [req.body.id])
     .then((resp) => res.status(201).send(resp.rows[0]))
     .catch((e) => res.status(400).send(e));
 });
+
+export default router;
