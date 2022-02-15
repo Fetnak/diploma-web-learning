@@ -18,10 +18,10 @@ CREATE TYPE user_role AS ENUM('administrator', 'teacher', 'student');
 -- TABLES
 CREATE TABLE users (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
-	_login varchar(255) NOT NULL,
+	_login varchar(255) NOT NULL UNIQUE,
     _password varchar(128) NOT NULL,
     _name varchar(255) NOT NULL,
-    email varchar(255) NOT NULL,
+    email varchar(255) NOT NULL UNIQUE,
     role user_role NOT NULL
 );
 
@@ -30,14 +30,14 @@ ALTER TABLE users
 
 CREATE TABLE sessions (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
-	data varchar(149) NOT NULL,
+	session_token varchar(196) NOT NULL,
     user_id uuid NOT NULL,
-    expires_at timestamptz NOT NULL
+    expires_at timestamptz DEFAULT CURRENT_TIMESTAMP + '7 days' NOT NULL
 );
 
 ALTER TABLE sessions
 	ADD CONSTRAINT pk_sessions PRIMARY KEY (_id),
-    ADD CONSTRAINT fk_sessions_users FOREIGN KEY (user_id) REFERENCES users (_id);
+    ADD CONSTRAINT fk_sessions_users FOREIGN KEY (user_id) REFERENCES users (_id) ON DELETE CASCADE;
 
 CREATE TABLE files (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,

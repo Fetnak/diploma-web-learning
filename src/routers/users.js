@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 // import postgres from "../db/postgres.js";
 import query from "../db/query.js";
+import auth from "../middleware/auth.js";
 
 const router = new express.Router();
 
@@ -35,8 +36,18 @@ router.post("/users", async (req, res) => {
     .catch((e) => res.status(400).send(e));
 });
 
+// Log in exited user
+router.post("/users/login", async (req, res) => {
+  const user = await auth.findByCredentials(req.body.email, req.body.password);
+  const token = await auth.generateAuthToken(user);
+  res.send({ user, token });
+});
+
 // Read user
-router.get("/users", async (req, res) => {
+router.get("/users", auth.auth, async (req, res) => query(req.ip, "SELECT * FROM users WHERE _id = $1", [req.user.rows[0]._id]).then((resp) => res.status(200).send(resp.rows[0])).catch((e) => res.status(400).send(e)));
+
+// Delete user
+router.delete("/users", auth.auth, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
@@ -45,9 +56,27 @@ router.get("/users", async (req, res) => {
     return res.status(400).send({ error: "invalid values!" });
   }
 
-  return query(req.ip, "SELECT * FROM users WHERE _id = $1", [req.body.id])
-    .then((resp) => res.status(201).send(resp.rows[0]))
-    .catch((e) => res.status(400).send(e));
+  return query(req.ip, "DELETE FROM users WHERE _id = $1", [req.body.id])
+    .then((resp) => res.status(200).send(resp.rows[0]))
+    .catch((e) => res.status(500).send(e));
+});
+
+// Delete current user
+router.delete("/users/delete", auth.auth, async (req, res) => query(req.ip, "DELETE FROM users WHERE _id = $1", [req.user.rows[0]._id]).then((resp) => res.status(200).send(resp.rows[0])).catch((e) => res.status(500).send(e)));
+
+// Update user
+router.patch("/users", auth.auth, async (req, res) => {
+  const values = Object.keys(req.body);
+  const allowedValues = ["id", "login", "password", "name", "email", "role"];
+  const isValidOperation = values.every((update) => allowedValues.includes(update));
+
+  if (!isValidOperation) {
+    return res.status(400).send({ error: "invalid values!" });
+  }
+
+  return query(req.ip, "DELETE FROM users WHERE _id = $1", [req.body.id])
+    .then((resp) => res.status(200).send(resp.rows[0]))
+    .catch((e) => res.status(500).send(e));
 });
 
 export default router;
