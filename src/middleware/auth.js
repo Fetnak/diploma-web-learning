@@ -39,7 +39,6 @@ const findByCredentials = async (email, password) => {
 };
 
 const generateAuthToken = async (user) => {
-  console.log(process.env.JWT_KEY);
   const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_KEY);
 
   await postgres.query("INSERT INTO sessions(session_token, user_id) VALUES ($1, $2)", [token, user._id]);

@@ -1,7 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import validator from "validator";
-// import postgres from "../db/postgres.js";
 import query from "../db/query.js";
 import auth from "../middleware/auth.js";
 
@@ -26,7 +25,7 @@ router.post("/users", async (req, res) => {
   const checkedValues = {
     login: req.body.login,
     password: await bcrypt.hash(req.body.password, 8),
-    name: req.body.login,
+    name: req.body.name,
     email: req.body.email,
     role: req.body.role
   };
@@ -65,17 +64,33 @@ router.delete("/users", auth.auth, async (req, res) => {
 router.delete("/users/delete", auth.auth, async (req, res) => query(req.ip, "DELETE FROM users WHERE _id = $1", [req.user.rows[0]._id]).then((resp) => res.status(200).send(resp.rows[0])).catch((e) => res.status(500).send(e)));
 
 // Update user
-router.patch("/users", auth.auth, async (req, res) => {
+router.patch("/users/me", auth.auth, async (req, res) => {
   const values = Object.keys(req.body);
-  const allowedValues = ["id", "login", "password", "name", "email", "role"];
+  const allowedValues = ["password", "name", "email"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
     return res.status(400).send({ error: "invalid values!" });
   }
 
-  return query(req.ip, "DELETE FROM users WHERE _id = $1", [req.body.id])
-    .then((resp) => res.status(200).send(resp.rows[0]))
+  const checkedValues = {
+    password: req.user.rows[0]._password,
+    name: req.user.rows[0]._name,
+    email: req.user.rows[0].email
+  };
+
+  if (req.body.password) {
+    checkedValues.password = await bcrypt.hash(req.body.password, 8);
+  }
+  if (req.body.name) {
+    checkedValues.name = req.body.name;
+  }
+  if (req.body.email) {
+    checkedValues.email = req.body.email;
+  }
+
+  return query(req.ip, "UPDATE users SET (_password, _name, email) = ($1, $2, $3) WHERE _id = $4", [checkedValues.password, checkedValues.name, checkedValues.email, req.user.rows[0]._id])
+    .then((resp) => res.status(200).send(resp))
     .catch((e) => res.status(500).send(e));
 });
 
