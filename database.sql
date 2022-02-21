@@ -19,7 +19,7 @@ CREATE TYPE user_role AS ENUM('administrator', 'teacher', 'student');
 
 CREATE TABLE groups (
     _id uuid DEFAULT gen_random_uuid() NOT NULL
-)
+);
 
 ALTER TABLE groups
 	ADD CONSTRAINT pk_groups PRIMARY KEY (_id);
@@ -31,6 +31,7 @@ CREATE TABLE users (
     _name varchar(255) NOT NULL,
     email varchar(255) NOT NULL UNIQUE,
     group_id uuid,
+    avatarpath text,
     role user_role NOT NULL
 );
 
@@ -52,6 +53,7 @@ ALTER TABLE sessions
 CREATE TABLE files (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
     _name varchar(255) NOT NULL,
+    mimetype varchar(64) NOT NULL,
     user_id uuid NOT NULL,
     filepath text NOT NULL
 );

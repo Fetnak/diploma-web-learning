@@ -9,7 +9,7 @@ const router = new express.Router();
 // Create new user
 router.post("/users", async (req, res) => {
   const values = Object.keys(req.body);
-  const allowedValues = ["login", "password", "name", "email", "role"];
+  const allowedValues = ["login", "password", "name", "email", "group_id", "role"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
@@ -27,10 +27,11 @@ router.post("/users", async (req, res) => {
     password: await bcrypt.hash(req.body.password, 8),
     name: req.body.name,
     email: req.body.email,
+    group_id: req.body.group_id,
     role: req.body.role
   };
 
-  return query(req.ip, "INSERT INTO users (_login, _password, _name, email, role) VALUES ($1, $2, $3, $4, $5)", [checkedValues.login, checkedValues.password, checkedValues.name, checkedValues.email, checkedValues.role])
+  return query(req.ip, "INSERT INTO users (_login, _password, _name, email, group_id, role) VALUES ($1, $2, $3, $4, $5, $6)", [checkedValues.login, checkedValues.password, checkedValues.name, checkedValues.email, checkedValues.group_id, checkedValues.role])
     .then((resp) => res.status(201).send(resp))
     .catch((e) => res.status(400).send(e));
 });
@@ -66,7 +67,7 @@ router.delete("/users/delete", auth.auth, async (req, res) => query(req.ip, "DEL
 // Update user
 router.patch("/users/me", auth.auth, async (req, res) => {
   const values = Object.keys(req.body);
-  const allowedValues = ["password", "name", "email"];
+  const allowedValues = ["password", "name", "email", "group_id"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
