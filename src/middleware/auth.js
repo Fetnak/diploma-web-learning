@@ -5,20 +5,10 @@ import postgres from "../db/postgres.js";
 import "../loadEnv.js";
 
 const auth = async (req, res, next) => {
-  try {
-    const token = req.header("Authorization").replace("Bearer ", "");
-    const decoded = jwt.verify(token, process.env.JWT_KEY);
-    const user = await query(req.ip, "SELECT * FROM users WHERE _id = (SELECT user_id FROM sessions WHERE user_id = $1 AND session_token = $2)", [decoded._id, token]);
-
-    if (!user) {
-      throw new Error();
-    }
-
-    req.token = token;
-    req.user = user;
+  if (req.body.authData.isAuth) {
     next();
-  } catch (error) {
-    res.status(401).send({ error: "Please authenticate" });
+  } else {
+    res.status(401).end();
   }
 };
 
@@ -26,7 +16,7 @@ const findByCredentials = async (email, password) => {
   const user = (await postgres.query("SELECT * FROM users WHERE email = $1", [email])).rows[0];
 
   if (!user) {
-    throw new Error("Unable to login");
+    throw new Error("User not found");
   }
 
   const isMatch = await bcrypt.compare(password, user._password);

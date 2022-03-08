@@ -18,7 +18,8 @@ CREATE TYPE user_role AS ENUM('administrator', 'teacher', 'student');
 -- TABLES
 
 CREATE TABLE groups (
-    _id uuid DEFAULT gen_random_uuid() NOT NULL
+    _id uuid DEFAULT gen_random_uuid() NOT NULL,
+    _name varchar(32) NOT NULL
 );
 
 ALTER TABLE groups
@@ -72,6 +73,7 @@ ALTER TABLE subjects
 	
 CREATE TABLE documents (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
+    _name varchar(255) NOT NULL,
     document_id uuid NOT NULL,
     subject_id uuid NOT NULL,
     file_id uuid NOT NULL
