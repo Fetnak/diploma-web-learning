@@ -18,7 +18,7 @@ const upload = multer({
 })
 
 // Upload new file
-router.post("/file/upload", auth.auth, upload.single('file'), async (req, res) => {
+router.post("/api/v1/file/upload", auth.auth, upload.single('file'), async (req, res) => {
   if (req.user.rows.length == 0) {
     return res.status(401).send({ error: "Authenticate please!" });
   }
@@ -37,7 +37,7 @@ router.post("/file/upload", auth.auth, upload.single('file'), async (req, res) =
 });
 
 // Read all files for current user
-router.get("/files", auth.auth, async (req, res) => {
+router.get("/api/v1/files", auth.auth, async (req, res) => {
   if (req.user.rows.length == 0) {
     return res.status(401).send({ error: "Authenticate please!" });
   }
@@ -46,7 +46,7 @@ router.get("/files", auth.auth, async (req, res) => {
 })
 
 // Get file
-router.get("/file", auth.auth, async (req, res) => {
+router.get("/api/v1/file", auth.auth, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
@@ -64,7 +64,7 @@ router.get("/file", auth.auth, async (req, res) => {
 })
 
 // Delete file
-router.delete("/file", auth.auth, async (req, res) => {
+router.delete("/api/v1/file", auth.auth, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
@@ -93,7 +93,7 @@ router.delete("/file", auth.auth, async (req, res) => {
 });
 
 // Update file
-router.patch("/file", auth.auth, async (req, res) => {
+router.patch("/api/v1/file", auth.auth, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id", "name"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));

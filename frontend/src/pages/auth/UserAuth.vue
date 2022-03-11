@@ -1,52 +1,47 @@
 <template>
   <div>
-    <base-dialog :show="!!error" title="An error occurred" @close="handleError">
+    <base-dialog :show="!!error" title="Ошибка!" @close="handleError">
       <p>{{ error }}</p>
     </base-dialog>
-    <base-dialog :show="isLoading" title="Authenticating..." fixed>
+    <base-dialog :show="isLoading" title="Авторизация..." fixed>
       <base-spinner></base-spinner>
     </base-dialog>
     <base-card>
       <form @submit.prevent="submitForm">
+        <h2>Войти в аккаунт</h2>
         <div class="form-control">
-          <label for="email">E-Mail</label>
-          <input type="email" id="email" v-model.trim="email" />
+          <label for="login">Имя пользователя</label>
+          <input type="login" id="login" v-model.trim="login" />
         </div>
         <div class="form-control">
-          <label for="password">Password</label>
+          <label for="password">Пароль</label>
           <input type="password" id="password" v-model.trim="password" />
         </div>
-        <p
-          v-if="!formIsValid"
-        >Please enter a valid email and password (must be at least 6 characters long).</p>
+        <p v-if="!formIsValid">Неверно введен логин или пароль.</p>
         <base-button type="button" @click="submitForm">Войти</base-button>
-        <base-button type="button" @click="checkAuth">Проверить авторизацию</base-button>
-        //<base-button type="button" link=true to="/test1">Test</base-button>
       </form>
     </base-card>
   </div>
 </template>
 
 <script>
+import axios from "../../store/axios.js"
+
 export default {
   data() {
     return {
-      email: '',
-      password: '',
+      login: "",
+      password: "",
       formIsValid: true,
       isLoading: false,
       error: null,
     };
   },
-  computed: {
-    
-  },
+  computed: {},
   methods: {
     async submitForm() {
       this.formIsValid = true;
       if (
-        this.email === '' ||
-        !this.email.includes('@') ||
         this.password.length < 6
       ) {
         this.formIsValid = false;
@@ -56,25 +51,38 @@ export default {
       this.isLoading = true;
 
       const actionPayload = {
-        email: this.email,
+        login: this.login,
         password: this.password,
       };
 
       try {
-        await this.$store.dispatch('login', actionPayload);
-         this.$router.replace("/");
+        await this.$store.dispatch("login", actionPayload);
+        this.$router.replace("/");
       } catch (err) {
-        this.error = err.message || 'Failed to authenticate, try later.';
+        this.error = err.message || "Failed to authenticate, try later.";
       }
 
       this.isLoading = false;
     },
-    checkAuth() {
-      this.$store.dispatch('check')
-    },
     handleError() {
       this.error = null;
     },
+  },
+  beforeMount() {
+    try {
+      axios({
+        method: "get",
+        url: "/api/v1/auth/check"
+      }).then((data) => {
+        if (data.data.authorized) {
+        this.$router.replace("/");
+      }
+    });
+    }
+    catch (error) {
+      console.log(error);
+    }
+      
   },
 };
 </script>

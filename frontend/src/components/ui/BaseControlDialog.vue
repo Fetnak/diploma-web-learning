@@ -13,7 +13,8 @@
         </section>
         <menu v-if="!fixed">
           <slot name="actions">
-            <base-button @click="tryClose">Закрыть</base-button>
+            <base-button @click="tryOk">Да</base-button>
+            <base-button mode="outline" @click="tryCancel">Отмена</base-button>
           </slot>
         </menu>
       </dialog>
@@ -38,13 +39,19 @@ export default {
       default: false,
     },
   },
-  emits: ['close'],
+  emits: ['okay, cancel'],
   methods: {
-    tryClose() {
+    tryOk() {
       if (this.fixed) {
         return;
       }
-      this.$emit('close');
+      this.$emit('okay');
+    },
+    tryCancel() {
+      if (this.fixed) {
+        return;
+      }
+      this.$emit('cancel');
     },
   },
 };

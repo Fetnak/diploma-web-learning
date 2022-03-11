@@ -1,7 +1,28 @@
 <template>
-    <p>Main page</p>
+  <the-header></the-header>
+  <div class="workingarea">
+    <base-card><h1>Начальная страница</h1></base-card>
+  </div>
 </template>
 
-<script></script>
+<script>
+import TheHeader from "../../components/layuot/TheHeader.vue";
 
-<style></style>
+export default {
+  data() {
+    return {
+      showSidebar: false,
+    };
+  },
+  components: { TheHeader },
+};
+</script>
+
+<style>
+body {
+  background-color: #e8eff6;
+}
+.workingarea {
+  justify-content: center;
+}
+</style>

@@ -1,13 +1,15 @@
 import express from "express";
+import Router from "express-promise-router";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import query from "../db/query.js";
 import auth from "../middleware/auth.js";
 
-const router = new express.Router();
+//const router = new express.Router();
+const router = new Router();
 
 // Create new user
-router.post("/api/v1/signup", async (req, res) => {
+router.post("/api/v1/signup", async (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   const values = Object.keys(req.body);
   const allowedValues = [
@@ -54,61 +56,40 @@ router.post("/api/v1/signup", async (req, res) => {
     ]
   )
     .then((resp) => res.status(201).send(resp))
-    .catch((e) => res.status(400).send(e));
+    .catch((error) => next(error));
 });
 
 // Log in exited user
-router.post("/api/v1/auth", async (req, res) => {
+router.post("/api/v1/auth", async (req, res, next) => {
   try {
+    console.log("session1" + JSON.stringify(req.session));
     const user = await auth.findByCredentials(
-      req.body.email,
+      req.body.login,
       req.body.password
     );
-    const token = await auth.generateAuthToken(user);
-    let date = new Date();
-    date.setDate(date.getDate() + 7);
-    res.send({ id: user._id, token: token, tokenExpiration: date.getTime(), role: user.role, isAuth: true });
+    req.session.userId = user._id;
+    req.session.role = user.role;
+    req.session.isAuth = true;
+    console.log("session2" + JSON.stringify(req.session));
+    return res.status(204).send();
   } catch (error) {
-    res.send({ error, message: "Cannot login" });
+    return next(error);
   }
-  res.end();
 });
 
 // Auth check
-router.post("/api/v1/auth/check", async (req, res) => {
-  try {
-    query(req.ip, "SELECT * FROM sessions WHERE session_token = $1 AND user_id = $2", [req.body.authData.token, req.body.authData.userId])
-      .then((resp) => {
-        if (resp.rows[0]) {
-          res.status(200).send({ authorized: true })
-        } else {
-          throw new Error;
-        }
-      })
-      .catch((e) => {
-        res.status(200).send({ authorized: false });
-      });
-  } catch (error) {
-    res.status(200).send({ authorized: false });
-  }
+router.get("/api/v1/auth/check", async (req, res) => {
+  res.status(200).send({ authorized: req.session.isAuth });
 });
 
-// Logout exited user
-router.post("/api/v1/auth/logout", auth.auth, async (req, res) => {
-  try {
-    query(req.ip, "SELECT * FROM sessions WHERE session_token = $1, user_id = $2", [req.body.authData.token. req.body.authData.userId])
-      .then((resp) => {
-        if (resp.rows[0]) {
-          return res.status(200).send({ authorized: true })
-        } else {
-          throw new Error;
-        }
-      })
-      .catch((e) => res.status(400).send({ authorized: false }));
-  } catch (error) {
-    res.send({ error, message: "Cannot login" });
-  }
-  res.end();
+// Logout user
+router.get("/api/v1/auth/logout", auth.auth, async (req, res, next) => {
+  req.session.destroy((error) => {
+    if (error) {
+      return next(error);
+    }
+    return res.status(204).end();
+  });
 });
 
 // Read user
