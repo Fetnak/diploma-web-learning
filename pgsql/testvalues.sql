@@ -11,6 +11,10 @@ VALUES
     ('f06c23bc-e434-4ac0-9950-abf25e3e49d4', 'teststudent1', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Милованов Бернар Егорович', 'teststudent1@example.com', '9fe196f5-c269-4a34-826d-2f41cdc74c97', null, 'student'),
     ('b8f06a1b-65d1-4b7c-85d7-da6675a34a8b', 'teststudent2', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Остимчук Кирилл Олегович', 'teststudent2@example.com', '1ed07ac2-627d-46e0-b3a8-680adc99fdbf', null, 'student');
 
+INSERT INTO secret_keys (_key)
+VALUES
+    ('1234');
+
 --INSERT INTO files
 
 INSERT INTO subjects (_id, _name, short_name)

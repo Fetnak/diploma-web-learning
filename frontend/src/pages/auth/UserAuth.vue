@@ -1,121 +1,128 @@
 <template>
-  <div>
-    <base-dialog :show="!!error" title="Ошибка!" @close="handleError">
-      <p>{{ error }}</p>
-    </base-dialog>
-    <base-dialog :show="isLoading" title="Авторизация..." fixed>
-      <base-spinner></base-spinner>
-    </base-dialog>
-    <base-card>
-      <form @submit.prevent="submitForm">
-        <h2>Войти в аккаунт</h2>
-        <div class="form-control">
-          <label for="login">Имя пользователя</label>
-          <input type="login" id="login" v-model.trim="login" />
-        </div>
-        <div class="form-control">
-          <label for="password">Пароль</label>
-          <input type="password" id="password" v-model.trim="password" />
-        </div>
-        <p v-if="!formIsValid">Неверно введен логин или пароль.</p>
-        <base-button type="button" @click="submitForm">Войти</base-button>
-      </form>
-    </base-card>
-  </div>
+  <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
+    <el-form-item label="Логин" prop="login">
+      <el-input
+        v-model="form.login"
+        :disabled="disable.login"
+        maxlength="32"
+        show-word-limit
+        clearable
+        style="max-width: 132ch"
+      ></el-input>
+    </el-form-item>
+    <el-form-item label="Пароль" prop="password">
+      <el-input
+        v-model="form.password"
+        :disabled="disable.password"
+        maxlength="32"
+        type="password"
+        show-password
+        style="max-width: 132ch"
+      ></el-input>
+    </el-form-item>
+    <el-form-item>
+      <div style="margin-left: 0; margin-right: auto">
+        <el-button type="primary" :loading="disable.submit" @click="submitForm()">Войти</el-button>
+        <router-link to="/register" custom v-slot="{ navigate }">
+          <el-button @click="navigate">Зарегистрироваться</el-button>
+        </router-link>
+      </div>
+    </el-form-item>
+  </el-form>
 </template>
 
 <script>
-import axios from "../../store/axios.js"
+import { ref, reactive, onBeforeMount } from "vue";
+import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+
+import axios from "../../store/axios.js";
 
 export default {
-  data() {
-    return {
+  setup() {
+    const router = useRouter();
+    const formRef = ref(null);
+    const form = reactive({
       login: "",
-      password: "",
-      formIsValid: true,
-      isLoading: false,
-      error: null,
+      password: ""
+    });
+    const disable = reactive({
+      login: false,
+      password: false,
+      submit: false
+    });
+    const toggleAll = () => {
+      Object.keys(disable).forEach((key) => {
+        disable[key] = !disable[key];
+      });
     };
-  },
-  computed: {},
-  methods: {
-    async submitForm() {
-      this.formIsValid = true;
-      if (
-        this.password.length < 6
-      ) {
-        this.formIsValid = false;
-        return;
-      }
+    const sendData = () => {
+      axios
+        .post("/api/v1/auth", { login: form.login, password: form.password })
+        .then(() => {
+          router.push("/");
+        })
+        .catch((error) => {
+          if (error.response?.status === 401) {
+            ElMessage.error("Введены некорректные данные!");
+            toggleAll();
+            return;
+          }
+          ElMessage.error("Неизвестная ошибка!");
+        });
+    };
+    const submitForm = () => {
+      formRef.value.validate((valid) => {
+        if (valid) {
+          toggleAll();
+          sendData();
+          return true;
+        }
+        return false;
+      });
+    };
+    const rules = reactive({
+      login: [
+        {
+          required: true,
+          message: "Пожалуйста, укажите логин",
+          trigger: "blur"
+        }
+      ],
+      password: [
+        {
+          required: true,
+          message: "Пожалуйста, укажите пароль",
+          trigger: "blur"
+        }
+      ]
+    });
 
-      this.isLoading = true;
-
-      const actionPayload = {
-        login: this.login,
-        password: this.password,
-      };
-
+    onBeforeMount(() => {
       try {
-        await this.$store.dispatch("login", actionPayload);
-        this.$router.replace("/");
-      } catch (err) {
-        this.error = err.message || "Failed to authenticate, try later.";
-      }
-
-      this.isLoading = false;
-    },
-    handleError() {
-      this.error = null;
-    },
-  },
-  beforeMount() {
-    try {
-      axios({
-        method: "get",
-        url: "/api/v1/auth/check"
-      }).then((data) => {
-        if (data.data.authorized) {
-        this.$router.replace("/");
+        axios({
+          method: "get",
+          url: "/api/v1/auth/check"
+        }).then((data) => {
+          if (data.data.authorized) {
+            router.replace("/");
+          }
+        });
+      } catch (error) {
+        console.log(error);
       }
     });
-    }
-    catch (error) {
-      console.log(error);
-    }
-      
-  },
+    return {
+      formRef,
+      form,
+      rules,
+      submitForm,
+      sendData,
+      toggleAll,
+      disable
+    };
+  }
 };
 </script>
 
-<style scoped>
-form {
-  margin: 1rem;
-  padding: 1rem;
-}
-
-.form-control {
-  margin: 0.5rem 0;
-}
-
-label {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-input,
-textarea {
-  display: block;
-  width: 100%;
-  font: inherit;
-  border: 1px solid #ccc;
-  padding: 0.15rem;
-}
-
-input:focus,
-textarea:focus {
-  border-color: #3d008d;
-  /* background-color: #faf6ff; */
-  outline: none;
-}
-</style>
+<style scoped></style>

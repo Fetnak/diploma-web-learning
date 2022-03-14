@@ -39,6 +39,14 @@ ALTER TABLE users
 	ADD CONSTRAINT pk_users PRIMARY KEY (_id),
     ADD CONSTRAINT fk_users_groups FOREIGN KEY (group_id) REFERENCES groups (_id);
 
+CREATE TABLE secret_keys (
+	_id uuid DEFAULT gen_random_uuid() NOT NULL,
+	_key varchar(255) NOT NULL UNIQUE
+);
+
+ALTER TABLE secret_keys
+	ADD CONSTRAINT pk_secret_keys PRIMARY KEY (_id);
+
 CREATE TABLE sessions (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
 	session_token varchar(196) NOT NULL,

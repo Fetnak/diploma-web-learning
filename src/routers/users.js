@@ -56,7 +56,7 @@ router.post("/api/v1/signup", async (req, res, next) => {
 });
 
 // Log in exited user
-router.post("/api/v1/auth", async (req, res, next) => {
+router.post("/api/v1/auth", async (req, res) => {
   try {
     const user = await auth.findByCredentials(
       req.body.login,
@@ -67,7 +67,7 @@ router.post("/api/v1/auth", async (req, res, next) => {
     req.session.isAuth = true;
     return res.status(204).send();
   } catch (error) {
-    return next(error);
+    return res.status(401).send();
   }
 });
 
