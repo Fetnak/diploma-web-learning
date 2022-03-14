@@ -7,7 +7,6 @@ import "../loadEnv.js";
 //     };
 // }
 
-
 const connectionString = process.env.POSTGRES_URL;
 
 const pool = new pg.Pool({ connectionString });

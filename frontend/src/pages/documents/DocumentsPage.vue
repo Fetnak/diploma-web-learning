@@ -32,11 +32,10 @@ export default {
         url: "/api/v1/documents/read",
       })
         .then((response) => {
-          console.log(response.data);
           this.documents = response.data
         })
         .catch((error) => {
-          console.log("ERROR 123" + error);
+          console.log("ERROR" + error);
         });
     },
   },
@@ -45,7 +44,7 @@ export default {
 
 <style>
 body {
-  background-color: #e8eff6;
+  /* background-color: #e8eff6; */
 }
 .workingarea {
   justify-content: center;

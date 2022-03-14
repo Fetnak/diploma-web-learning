@@ -7,6 +7,8 @@ import postgres from "./db/postgres.js";
 import testRouter from "./routers/test.js";
 import usersRouter from "./routers/users.js";
 import filesRouter from "./routers/files.js";
+import groupsRouter from "./routers/groups.js";
+import subjectsRouter from "./routers/subjects.js";
 import documentsRouter from "./routers/documents.js";
 
 const app = express();
@@ -17,9 +19,9 @@ export default server;
 const PgSession = pgSession(session);
 
 const sessionMiddleware = session({
-  store: new PgSession({ 
+  store: new PgSession({
     pool: postgres
-   }),
+  }),
   secret: process.env.JWT_KEY,
   resave: false,
   saveUninitialized: false,
@@ -38,7 +40,9 @@ app.use([
   testRouter,
   usersRouter,
   filesRouter,
-  documentsRouter
+  documentsRouter,
+  groupsRouter,
+  subjectsRouter
 ]);
 
 postgres.query("SELECT NOW()", (err, res) => {

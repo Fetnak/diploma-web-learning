@@ -1,11 +1,9 @@
-import express from "express";
 import Router from "express-promise-router";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import query from "../db/query.js";
 import auth from "../middleware/auth.js";
 
-//const router = new express.Router();
 const router = new Router();
 
 // Create new user
@@ -18,11 +16,9 @@ router.post("/api/v1/signup", async (req, res, next) => {
     "name",
     "email",
     "group_id",
-    "role",
+    "role"
   ];
-  const isValidOperation = values.every((update) =>
-    allowedValues.includes(update)
-  );
+  const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
     return res.status(400).send({ error: "invalid values!" });
@@ -40,7 +36,7 @@ router.post("/api/v1/signup", async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     group_id: req.body.group_id,
-    role: req.body.role,
+    role: req.body.role
   };
 
   return query(
@@ -52,7 +48,7 @@ router.post("/api/v1/signup", async (req, res, next) => {
       checkedValues.name,
       checkedValues.email,
       checkedValues.group_id,
-      checkedValues.role,
+      checkedValues.role
     ]
   )
     .then((resp) => res.status(201).send(resp))
@@ -62,7 +58,6 @@ router.post("/api/v1/signup", async (req, res, next) => {
 // Log in exited user
 router.post("/api/v1/auth", async (req, res, next) => {
   try {
-    console.log("session1" + JSON.stringify(req.session));
     const user = await auth.findByCredentials(
       req.body.login,
       req.body.password
@@ -70,7 +65,6 @@ router.post("/api/v1/auth", async (req, res, next) => {
     req.session.userId = user._id;
     req.session.role = user.role;
     req.session.isAuth = true;
-    console.log("session2" + JSON.stringify(req.session));
     return res.status(204).send();
   } catch (error) {
     return next(error);
@@ -83,7 +77,7 @@ router.get("/api/v1/auth/check", async (req, res) => {
 });
 
 // Logout user
-router.get("/api/v1/auth/logout", auth.auth, async (req, res, next) => {
+router.get("/api/v1/auth/logout", auth.student, async (req, res, next) => {
   req.session.destroy((error) => {
     if (error) {
       return next(error);
@@ -93,19 +87,17 @@ router.get("/api/v1/auth/logout", auth.auth, async (req, res, next) => {
 });
 
 // Read user
-router.get("/api/v1/user", auth.auth, async (req, res) => {
+router.get("/api/v1/user", auth.student, async (req, res) => {
   query(req.ip, "SELECT * FROM users WHERE _id = $1", [req.user.rows[0]._id])
     .then((resp) => res.status(200).send(resp.rows[0]))
     .catch((e) => res.status(400).send(e));
 });
 
 // Delete user
-router.delete("/api/v1/user", auth.auth, async (req, res) => {
+router.delete("/api/v1/user", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id"];
-  const isValidOperation = values.every((update) =>
-    allowedValues.includes(update)
-  );
+  const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
     return res.status(400).send({ error: "invalid values!" });
@@ -117,19 +109,17 @@ router.delete("/api/v1/user", auth.auth, async (req, res) => {
 });
 
 // Delete current user
-router.delete("/api/v1/user/delete", auth.auth, async (req, res) => {
+router.delete("/api/v1/user/delete", auth.student, async (req, res) => {
   query(req.ip, "DELETE FROM users WHERE _id = $1", [req.user.rows[0]._id])
     .then((resp) => res.status(200).send(resp.rows[0]))
     .catch((e) => res.status(500).send(e));
 });
 
 // Update user
-router.patch("/api/v1/user", auth.auth, async (req, res) => {
+router.patch("/api/v1/user", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["password", "name", "email", "group_id"];
-  const isValidOperation = values.every((update) =>
-    allowedValues.includes(update)
-  );
+  const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
     return res.status(400).send({ error: "invalid values!" });
@@ -138,7 +128,7 @@ router.patch("/api/v1/user", auth.auth, async (req, res) => {
   const checkedValues = {
     password: req.user.rows[0]._password,
     name: req.user.rows[0]._name,
-    email: req.user.rows[0].email,
+    email: req.user.rows[0].email
   };
 
   if (req.body.password) {
@@ -158,7 +148,7 @@ router.patch("/api/v1/user", auth.auth, async (req, res) => {
       checkedValues.password,
       checkedValues.name,
       checkedValues.email,
-      req.user.rows[0]._id,
+      req.user.rows[0]._id
     ]
   )
     .then((resp) => res.status(200).send(resp))

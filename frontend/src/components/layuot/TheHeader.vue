@@ -1,150 +1,93 @@
 <template>
-  <base-control-dialog
-    :show="showLogoutDialog"
-    title="Выход из аккаунта!"
-    @okay="logout"
-    @cancel="switchLogoutDialog"
+  <el-menu
+    :default-active="activeIndex"
+    class="el-menu-demo"
+    mode="horizontal"
+    @select="handleSelect"
   >
-    <p>{{ "Вы уверены что хотите выйти из аккаунта?" }}</p>
-  </base-control-dialog>
-  <header>
-    <img
-      src="../../../public/menu.svg"
-      alt="menu"
-      class="menu"
-      @click="switchSidebar"
-    />
-    <nav>
-      <!-- <h1>
-        <router-link to="/">Find a Coach</router-link>
-      </h1>
-      <ul>
-        <li>
-          <router-link to="/coaches">All Coaches</router-link>
-        </li>
-        <li v-if="isLoggedIn">
-          <router-link to="/requests">Requests</router-link>
-        </li>
-        <li v-else>
-          <router-link to="/auth">Login</router-link>
-        </li>
-        <li v-if="isLoggedIn">
-          <base-button @click="logout">Logout</base-button>
-        </li>
-      </ul> -->
-    </nav>
-    <div>
-      <img
-        src="../../../public/user.svg"
-        alt="user"
-        class="user"
-        @click="switchLogoutDialog"
-      />
-    </div>
-  </header>
-  <the-menu :show="showSidebar"></the-menu>
+    <el-menu-item index="/"
+      ><template #title>
+        <el-icon><home-filled /></el-icon>
+        <span>Информация</span>
+      </template></el-menu-item
+    >
+    <el-menu-item index="/documents"
+      ><template #title>
+        <el-icon><list /></el-icon>
+        <span>Задания</span>
+      </template></el-menu-item
+    >
+    <el-sub-menu index="Other">
+      <template #title>
+        Прочее</template
+      >
+      <el-menu-item index="/groups">
+        <template #title>
+          <el-icon><avatar /></el-icon>
+          <span>Группы</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="/subjects">
+        <template #title>
+          <el-icon><management /></el-icon>
+          <span>Дисциплины</span>
+        </template>
+      </el-menu-item>
+      <el-sub-menu index="2-4">
+        <template #title>item four</template>
+        <el-menu-item index="2-4-1">item one</el-menu-item>
+        <el-menu-item index="2-4-2">item two</el-menu-item>
+        <el-menu-item index="2-4-3">item three</el-menu-item>
+      </el-sub-menu>
+    </el-sub-menu>
+  </el-menu>
 </template>
 
 <script>
-import TheMenu from "./TheMenu.vue";
+// import { ref } from "vue";
+/* eslint-disable */
+import {
+  HomeFilled,
+  List,
+  Avatar,
+  Management,
+  Document,
+} from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
 
 export default {
-  data() {
-    return {
-      showLogoutDialog: false,
-      showSidebar: false,
-    };
-  },
-  components: { TheMenu },
-  computed: {
-    isLoggedIn() {
-      return this.$store.getters.isAuthenticated;
+  components: { HomeFilled, List, Avatar, Management, Document },
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
     },
   },
+  emits: [],
   methods: {
-    logout() {
-      this.$store.dispatch("logout");
-      this.$router.replace("/auth");
-    },
-    switchLogoutDialog() {
-      this.showLogoutDialog = !this.showLogoutDialog;
-    },
-    switchSidebar() {
-      this.showSidebar = !this.showSidebar;
-    },
+
   },
+  setup() {
+    const router = useRouter();
+
+    const handleSelect = (key, keyPath) => {
+      console.log("KEY"+ key, "KEYPATH" + keyPath);
+      router.push(key);
+    };
+
+    return {
+      handleSelect,
+    }
+  }
 };
 </script>
 
 <style scoped>
-.user {
-  border-radius: 25%;
-  height: 3.5rem;
-  background-color: #e7e8eb;
-  fill: #ff0000;
-  margin-right: 1.5rem;
-  padding: 0.75rem;
+.el-menu-vertical-demo:not(.el-menu--collapse) {
+  width: 200px;
 }
-.menu {
-  height: 1.5rem;
-  margin-left: 1.5rem;
-}
-header {
-  width: 100%;
-  height: 5rem;
-  background-color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-header a {
-  text-decoration: none;
-  /* color: #f391e3; */
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border: 0.0625rem solid transparent;
-}
-
-a:active,
-a:hover,
-a.router-link-active {
-  border: 0.0625rem solid;
-}
-
-h1 {
-  margin: 0;
-}
-
-h1 a {
-  /* color: white; */
-  margin: 0;
-}
-
-h1 a:hover,
-h1 a:active,
-h1 a.router-link-active {
-  border-color: transparent;
-}
-
-header nav {
-  width: 90%;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-header ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-li {
-  margin: 0 0.5rem;
+.el-menu-vertical-demo {
+  min-height: 100%;
+  position: fixed;
 }
 </style>

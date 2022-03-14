@@ -4,9 +4,9 @@ const url = "http://localhost:3000";
 const axiosInstance = axios.create({
   baseURL: `${url}`,
   headers: {
-    "Content-type": "application/json"
+    "Content-type": "application/json",
   },
-  withCredentials: true
+  withCredentials: true,
 });
 
 export default axiosInstance;

@@ -2,7 +2,6 @@ import express from "express";
 
 const router = new express.Router();
 
-
 router.get("/test", async (req, res) => {
   res.send("TEST GET");
 });

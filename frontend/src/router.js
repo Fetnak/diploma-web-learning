@@ -20,6 +20,7 @@ const router = createRouter({
       path: "/",
       meta: { requireAuth: true },
       component: MainPage,
+      title: "Начальная страница"
       //alias: "/",
       // children: [
       //   { name: "test-children-page", path: ":testId", component: HelloWorld },
