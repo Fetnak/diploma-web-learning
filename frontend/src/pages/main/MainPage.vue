@@ -30,20 +30,17 @@ export default {
     const logout = () => {
       store.dispatch("logout");
       router.push("/auth");
-    }
+    };
 
     return {
       logout,
       showSidebar
-    }
+    };
   }
 };
 </script>
 
 <style>
-body {
-  /* background-color: #e8eff6; */
-}
 .workingarea {
   justify-content: center;
 }

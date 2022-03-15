@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import axios from "./store/axios.js";
 
 import UserAuth from "./pages/auth/UserAuth.vue";
+import UserRegister from "./pages/auth/UserRegister.vue";
 import MainPage from "./pages/main/MainPage.vue";
 import DocumentsPage from "./pages/documents/DocumentsPage.vue"
 
@@ -14,9 +15,15 @@ const router = createRouter({
       meta: { requireAuth: false },
       component: UserAuth,
     },
+    {
+      name: "Register",
+      path: "/register",
+      meta: { requireAuth: false },
+      component: UserRegister,
+    },
     //{ path: "/", redirect: "/test1" },
     {
-      name: "main-page",
+      name: "MainPage",
       path: "/",
       meta: { requireAuth: true },
       component: MainPage,

@@ -7,8 +7,7 @@ import auth from "../middleware/auth.js";
 const router = new Router();
 
 // Create new user
-router.post("/api/v1/signup", async (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+router.post("/api/v1/signup", async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = [
     "login",
@@ -16,43 +15,57 @@ router.post("/api/v1/signup", async (req, res, next) => {
     "name",
     "email",
     "group_id",
-    "role"
+    "role",
+    "secret_key"
   ];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
     return res.status(400).send({ error: "invalid values!" });
   }
-  if (!validator.isEmail(req.body.email)) {
-    return res.status(400).send({ error: "invalid email!" });
-  }
-  if (req.body.password.length < 8) {
-    return res.status(400).send({ error: "Password is too short!" });
-  }
-
-  const checkedValues = {
-    login: req.body.login,
-    password: await bcrypt.hash(req.body.password, 8),
-    name: req.body.name,
-    email: req.body.email,
-    group_id: req.body.group_id,
-    role: req.body.role
-  };
-
   return query(
     req.ip,
-    "INSERT INTO users (_login, _password, _name, email, group_id, role) VALUES ($1, $2, $3, $4, $5, $6)",
+    "SELECT * FROM secret_keys WHERE _key=$1",
     [
-      checkedValues.login,
-      checkedValues.password,
-      checkedValues.name,
-      checkedValues.email,
-      checkedValues.group_id,
-      checkedValues.role
+      req.body.secret_key
     ]
   )
-    .then((resp) => res.status(201).send(resp))
-    .catch((error) => next(error));
+    .then(async (resp) => {
+      if (resp.rowCount !== 0) {
+        if (!validator.isEmail(req.body.email)) {
+          return res.status(400).send({ error: "invalid email!" });
+        }
+        if (req.body.password.length < 8) {
+          return res.status(400).send({ error: "Password is too short!" });
+        }
+
+        const checkedValues = {
+          login: req.body.login,
+          password: await bcrypt.hash(req.body.password, 8),
+          name: req.body.name,
+          email: req.body.email,
+          group_id: req.body.group_id,
+          role: req.body.role
+        };
+
+        return query(
+          req.ip,
+          "INSERT INTO users (_login, _password, _name, email, group_id, role) VALUES ($1, $2, $3, $4, $5, $6)",
+          [
+            checkedValues.login,
+            checkedValues.password,
+            checkedValues.name,
+            checkedValues.email,
+            checkedValues.group_id,
+            checkedValues.role
+          ]
+        )
+          .then(() => res.status(201).send())
+          .catch(() => res.status(400).send());
+      }
+      return res.status(400).send({ error: "invalid secret key!" });
+    })
+    .catch(() => res.status(400).send({ error: "Unknown error!" }));
 });
 
 // Log in exited user

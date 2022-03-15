@@ -1,44 +1,46 @@
 <template>
-  <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
-    <el-form-item label="Логин" prop="login">
-      <el-input
-        v-model="form.login"
-        :disabled="disable.login"
-        maxlength="32"
-        show-word-limit
-        clearable
-        style="max-width: 132ch"
-      ></el-input>
-    </el-form-item>
-    <el-form-item label="Пароль" prop="password">
-      <el-input
-        v-model="form.password"
-        :disabled="disable.password"
-        maxlength="32"
-        type="password"
-        show-password
-        style="max-width: 132ch"
-      ></el-input>
-    </el-form-item>
-    <el-form-item>
-      <div style="margin-left: 0; margin-right: auto">
-        <el-button type="primary" :loading="disable.submit" @click="submitForm()">Войти</el-button>
-        <router-link to="/register" custom v-slot="{ navigate }">
-          <el-button @click="navigate">Зарегистрироваться</el-button>
-        </router-link>
-      </div>
-    </el-form-item>
-  </el-form>
+  <base-form header="Вход в аккаунт">
+    <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
+      <el-form-item label="Логин" prop="login">
+        <el-input
+          v-model="form.login"
+          :disabled="disable.login"
+          maxlength="255"
+          clearable
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="Пароль" prop="password">
+        <el-input
+          v-model="form.password"
+          :disabled="disable.password"
+          maxlength="128"
+          type="password"
+        ></el-input>
+      </el-form-item>
+      <el-form-item>
+        <div style="margin-left: 0; margin-right: auto">
+          <el-button type="primary" :loading="disable.submit" @click="submitForm()">
+            Войти
+          </el-button>
+          <router-link to="/register" custom v-slot="{ navigate }">
+            <el-button @click="navigate">Зарегистрироваться</el-button>
+          </router-link>
+        </div>
+      </el-form-item>
+    </el-form>
+  </base-form>
 </template>
 
 <script>
 import { ref, reactive, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
+import BaseForm from "../../components/ui/BaseForm.vue";
 
 import axios from "../../store/axios.js";
 
 export default {
+  components: { BaseForm },
   setup() {
     const router = useRouter();
     const formRef = ref(null);
@@ -85,14 +87,14 @@ export default {
       login: [
         {
           required: true,
-          message: "Пожалуйста, укажите логин",
+          message: "Логин обязателен",
           trigger: "blur"
         }
       ],
       password: [
         {
           required: true,
-          message: "Пожалуйста, укажите пароль",
+          message: "Пароль обязателен",
           trigger: "blur"
         }
       ]

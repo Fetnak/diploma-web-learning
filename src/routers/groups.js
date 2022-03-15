@@ -32,9 +32,9 @@ router.post("/api/v1/group", auth.administrator, async (req, res, next) => {
 });
 
 // Read groups
-router.get("/api/v1/group", auth.administrator, async (req, res, next) => {
+router.get("/api/v1/group", async (req, res, next) => {
   query(req.ip, "SELECT * FROM groups")
-    .then((resp) => res.status(200).send(resp.rows[0]))
+    .then((resp) => res.status(200).send(resp.rows))
     .catch((error) => next(error));
 });
 
