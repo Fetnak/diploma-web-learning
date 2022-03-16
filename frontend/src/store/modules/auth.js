@@ -1,40 +1,45 @@
 import axios from "../axios.js";
 
-export default {
-  state() {
-    return {};
+const store = {
+  state: {
+    UserName: undefined
   },
-  mutations: {},
-  actions: {
-    async login(context, payload) {
-      return context.dispatch("auth", payload);
+  getters: {
+    getUserName(state) {
+      return {
+        UserName: state.UserName
+      };
+    }
+  },
+  mutations: {
+    setUserName(state, payload) {
+      state.UserName = payload.name;
     },
-    async auth(context, payload) {
-      await axios({
-        method: "post",
-        url: "/api/v1/auth",
-        data: {
-          login: payload.login,
-          password: payload.password,
-        },
-      })
-        .then(async function (response) {
-          if (response.data.error) throw new Error();
+    getUserName(state) {
+      axios
+        .get("/api/v1/user")
+        .then((data) => {
+          state.UserName = data.data._name;
         })
-        .catch(function (error) {
-          error = new Error(
-            // error.message || "Не удалось войти в аккаунт. Проверьте введенные данные."
-            "Не удалось войти в аккаунт. Проверьте введенные данные."
-          );
-          throw error;
+        .catch((error) => {
+          console.log(error);
         });
-    },
+    }
+  },
+  actions: {
     logout() {
       axios({
         method: "get",
-        url: "/api/v1/auth/logout",
+        url: "/api/v1/auth/logout"
       });
     },
-  },
-  getters: {},
+    getUserName(context) {
+      context.commit("getUserName");
+    },
+    setUserName(context, payload) {
+      context.commit("setUserName", payload);
+    }
+  }
 };
+
+export default store;

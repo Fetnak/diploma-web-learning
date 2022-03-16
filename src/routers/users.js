@@ -78,7 +78,7 @@ router.post("/api/v1/auth", async (req, res) => {
     req.session.userId = user._id;
     req.session.role = user.role;
     req.session.isAuth = true;
-    return res.status(204).send();
+    return res.status(200).send({ name: user.name });
   } catch (error) {
     return res.status(401).send();
   }
@@ -100,11 +100,9 @@ router.get("/api/v1/auth/logout", auth.student, async (req, res, next) => {
 });
 
 // Read user
-router.get("/api/v1/user", auth.student, async (req, res) => {
-  query(req.ip, "SELECT * FROM users WHERE _id = $1", [req.user.rows[0]._id])
-    .then((resp) => res.status(200).send(resp.rows[0]))
-    .catch((e) => res.status(400).send(e));
-});
+router.get("/api/v1/user", auth.student, async (req, res) => query(req.ip, "SELECT _login, _name, email, group_id FROM users WHERE _id = $1", [req.session.userId])
+  .then((resp) => res.status(200).send(resp.rows[0]))
+  .catch((e) => res.status(400).send(e)));
 
 // Delete user
 router.delete("/api/v1/user", auth.administrator, async (req, res) => {

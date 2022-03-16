@@ -30,7 +30,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Секретный ключ" prop="secret_key">
-        <el-input v-model="form.secret_key" :disabled="disable.secret_key" maxlength="255" clearable></el-input>
+        <el-input v-model="form.secret_key" :disabled="disable.secret_key" maxlength="255" type="password" clearable></el-input>
       </el-form-item>
       <el-form-item>
         <div style="margin-left: 0; margin-right: auto">
@@ -157,9 +157,7 @@ export default {
             loadGroups();
           }
         });
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) { error }
     });
     return { formRef, form, rules, submitForm, sendData, toggleAll, disable, groups, roles, selectGroup, selectRole };
   }

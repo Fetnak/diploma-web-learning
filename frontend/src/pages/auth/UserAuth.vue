@@ -2,26 +2,14 @@
   <base-form header="Вход в аккаунт">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
       <el-form-item label="Логин" prop="login">
-        <el-input
-          v-model="form.login"
-          :disabled="disable.login"
-          maxlength="255"
-          clearable
-        ></el-input>
+        <el-input v-model="form.login" :disabled="disable.login" maxlength="255" clearable></el-input>
       </el-form-item>
       <el-form-item label="Пароль" prop="password">
-        <el-input
-          v-model="form.password"
-          :disabled="disable.password"
-          maxlength="128"
-          type="password"
-        ></el-input>
+        <el-input v-model="form.password" :disabled="disable.password" maxlength="128" clearable type="password"></el-input>
       </el-form-item>
       <el-form-item>
-        <div style="margin-left: 0; margin-right: auto">
-          <el-button type="primary" :loading="disable.submit" @click="submitForm()">
-            Войти
-          </el-button>
+        <div>
+          <el-button type="primary" :loading="disable.submit" @click="submitForm()">Войти</el-button>
           <router-link to="/register" custom v-slot="{ navigate }">
             <el-button @click="navigate">Зарегистрироваться</el-button>
           </router-link>
@@ -111,7 +99,7 @@ export default {
           }
         });
       } catch (error) {
-        console.log(error);
+        error;
       }
     });
     return {
