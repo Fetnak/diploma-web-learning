@@ -104,6 +104,11 @@ router.get("/api/v1/user", auth.student, async (req, res) => query(req.ip, "SELE
   .then((resp) => res.status(200).send(resp.rows[0]))
   .catch((e) => res.status(400).send(e)));
 
+// Read users
+router.get("/api/v1/users", auth.administrator, async (req, res) => query(req.ip, "SELECT _login, _name, email, group_id, role FROM users WHERE")
+  .then((resp) => res.status(200).send(resp.rows))
+  .catch((e) => res.status(400).send(e)));
+
 // Delete user
 router.delete("/api/v1/user", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);

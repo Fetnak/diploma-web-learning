@@ -16,7 +16,7 @@ const student = async (req, res, next) => {
 
 const teacher = async (req, res, next) => {
   try {
-    if (req.session.isAuth && (req.session.role === "student" || req.session.role === "teacher")) {
+    if (req.session.isAuth && (req.session.role === "administrator" || req.session.role === "teacher")) {
       next();
     } else {
       res.status(401).end();
@@ -28,7 +28,7 @@ const teacher = async (req, res, next) => {
 
 const administrator = async (req, res, next) => {
   try {
-    if (req.session.isAuth && req.session.role === "student") {
+    if (req.session.isAuth && req.session.role === "administrator") {
       next();
     } else {
       res.status(401).end();

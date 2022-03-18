@@ -33,7 +33,7 @@
         <el-menu-item index="2-4-3">item three</el-menu-item>
       </el-sub-menu>
     </el-sub-menu>
-
+    <h2 style="margin: auto auto">{{ header }}</h2>
     <el-sub-menu style="margin-left: auto; margin-right: 0" index="user">
       <template #title>
         <span style="padding-right: 1rem">{{ UserName }}</span>
@@ -59,6 +59,7 @@ import { useStore } from "vuex";
 
 export default {
   components: { HomeFilled, List, Avatar, Management, UserFilled },
+  props: ["header"],
   emits: [],
   methods: {},
   setup() {

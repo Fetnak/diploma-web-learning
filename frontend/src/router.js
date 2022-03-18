@@ -5,6 +5,8 @@ import UserAuth from "./pages/auth/UserAuth.vue";
 import UserRegister from "./pages/auth/UserRegister.vue";
 import MainPage from "./pages/main/MainPage.vue";
 import DocumentsPage from "./pages/documents/DocumentsPage.vue"
+import GroupsPage from "./pages/tables/GroupsPage.vue"
+import SubjectsPage from "./pages/tables/SubjectsPage.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -38,6 +40,18 @@ const router = createRouter({
       path: "/documents",
       meta: { requireAuth: true },
       component: DocumentsPage,
+    },
+    {
+      name: "Groups",
+      path: "/groups",
+      meta: { requireAuth: true },
+      component: GroupsPage,
+    },
+    {
+      name: "Subjects",
+      path: "/subjects",
+      meta: { requireAuth: true },
+      component: SubjectsPage,
     },
     //{ path: "/test2/:testId", component: HelloWorld, props: true },
     //{ path: "/:404(.*)", redirect: "/test1" },

@@ -33,12 +33,12 @@ router.post("/api/v1/subjects", auth.administrator, async (req, res, next) => {
 // Read subjects
 router.get("/api/v1/subjects", auth.teacher, async (req, res, next) => {
   query(req.ip, "SELECT * FROM subjects")
-    .then((resp) => res.status(200).send(resp.rows[0]))
+    .then((resp) => res.status(200).send(resp.rows))
     .catch((error) => next(error));
 });
 
 // Delete subject
-router.delete("/api/v1/group", auth.administrator, async (req, res, next) => {
+router.post("/api/v1/subjects/delete", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
@@ -49,11 +49,11 @@ router.delete("/api/v1/group", auth.administrator, async (req, res, next) => {
 
   return query(req.ip, "DELETE FROM subjects WHERE _id = $1", [req.body.id])
     .then((resp) => res.status(200).send(resp.rows[0]))
-    .catch((error) => next(error));
+    .catch(() => res.status(400).send());
 });
 
 // Update group
-router.patch("/api/v1/group", auth.administrator, async (req, res) => {
+router.patch("/api/v1/subjects", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id", "name", "short_name"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
@@ -64,7 +64,7 @@ router.patch("/api/v1/group", auth.administrator, async (req, res) => {
 
   return query(
     req.ip,
-    "UPDATE users SET (_name, short_name) = ($1, $2) WHERE _id = $3",
+    "UPDATE subjects SET (_name, short_name) = ($1, $2) WHERE _id = $3",
     [
       req.body.name,
       req.body.short_name,
@@ -72,7 +72,7 @@ router.patch("/api/v1/group", auth.administrator, async (req, res) => {
     ]
   )
     .then((resp) => res.status(200).send(resp))
-    .catch((e) => res.status(500).send(e));
+    .catch((error) => res.status(400).send(error));
 });
 
 export default router;

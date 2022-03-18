@@ -18,7 +18,10 @@ CREATE TYPE user_role AS ENUM('administrator', 'teacher', 'student');
 -- TABLES
 CREATE TABLE groups (
     _id uuid DEFAULT gen_random_uuid() NOT NULL,
-    _name varchar(32) NOT NULL
+    _name varchar(32) NOT NULL,
+    specialty varchar(256), --специальность
+    specialization varchar(256), --специализация,
+    qualification varchar(256) --квалификация
 );
 
 ALTER TABLE groups

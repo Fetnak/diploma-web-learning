@@ -8,11 +8,9 @@ import auth from "../middleware/auth.js";
 const router = new express.Router();
 
 // Create new group
-router.post("/api/v1/group", auth.administrator, async (req, res, next) => {
+router.post("/api/v1/group", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
-  const allowedValues = [
-    "name"
-  ];
+  const allowedValues = ["name", "specialty", "specialization", "qualification"];
 
   const isValidOperation = values.every((update) => allowedValues.includes(update));
 
@@ -22,13 +20,16 @@ router.post("/api/v1/group", auth.administrator, async (req, res, next) => {
 
   return query(
     req.ip,
-    "INSERT INTO groups (_name) VALUES ($1)",
+    "INSERT INTO groups (_name, specialty, specialization, qualification) VALUES ($1, $2, $3, $4)",
     [
-      req.body.name
+      req.body.name,
+      req.body.specialty,
+      req.body.specialization,
+      req.body.qualification
     ]
   )
     .then((resp) => res.status(201).send(resp))
-    .catch((error) => next(error));
+    .catch(() => res.status(400).send());
 });
 
 // Read groups
@@ -39,7 +40,7 @@ router.get("/api/v1/group", async (req, res, next) => {
 });
 
 // Delete group
-router.delete("/api/v1/group", auth.administrator, async (req, res, next) => {
+router.post("/api/v1/group/delete", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
   const allowedValues = ["id"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
@@ -47,16 +48,15 @@ router.delete("/api/v1/group", auth.administrator, async (req, res, next) => {
   if (!isValidOperation) {
     return res.status(400).send({ error: "invalid values!" });
   }
-
   return query(req.ip, "DELETE FROM groups WHERE _id = $1", [req.body.id])
     .then((resp) => res.status(200).send(resp.rows[0]))
-    .catch((error) => next(error));
+    .catch(() => res.status(400).send());
 });
 
 // Update group
 router.patch("/api/v1/group", auth.administrator, async (req, res) => {
   const values = Object.keys(req.body);
-  const allowedValues = ["id", "name"];
+  const allowedValues = ["id", "name", "specialty", "specialization", "qualification"];
   const isValidOperation = values.every((update) => allowedValues.includes(update));
 
   if (!isValidOperation) {
@@ -65,11 +65,8 @@ router.patch("/api/v1/group", auth.administrator, async (req, res) => {
 
   return query(
     req.ip,
-    "UPDATE groups SET _name = $1 WHERE _id = $2",
-    [
-      req.body.name,
-      req.body.id
-    ]
+    "UPDATE groups SET (_name, specialty, specialization, qualification) = ($1, $2, $3, $4) WHERE _id = $5;",
+    [req.body.name, req.body.specialty, req.body.specialization, req.body.qualification, req.body.id]
   )
     .then((resp) => res.status(200).send(resp))
     .catch((e) => res.status(500).send(e));

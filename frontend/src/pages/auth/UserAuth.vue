@@ -1,5 +1,5 @@
 <template>
-  <base-form header="Вход в аккаунт">
+  <base-form header="Авторизация">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
       <el-form-item label="Логин" prop="login">
         <el-input v-model="form.login" :disabled="disable.login" maxlength="255" clearable></el-input>
