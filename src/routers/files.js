@@ -45,13 +45,6 @@ router.get("/api/v1/files", auth.student, async (req, res) => {
 
 // Get file
 router.get("/api/v1/file", auth.student, async (req, res) => {
-  const values = Object.keys(req.body);
-  const allowedValues = ["id"];
-  const isValidOperation = values.every((update) => allowedValues.includes(update));
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "invalid values!" });
-  }
   if (req.user.rows.length === 0) {
     return res.status(401).send({ error: "Authenticate please!" });
   }
@@ -63,13 +56,6 @@ router.get("/api/v1/file", auth.student, async (req, res) => {
 
 // Delete file
 router.delete("/api/v1/file", auth.student, async (req, res, next) => {
-  const values = Object.keys(req.body);
-  const allowedValues = ["id"];
-  const isValidOperation = values.every((update) => allowedValues.includes(update));
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "invalid values!" });
-  }
   if (req.user.rows.length === 0) {
     return res.status(401).send({ error: "Authenticate please!" });
   }
@@ -91,13 +77,6 @@ router.delete("/api/v1/file", auth.student, async (req, res, next) => {
 
 // Update file
 router.patch("/api/v1/file", auth.student, async (req, res) => {
-  const values = Object.keys(req.body);
-  const allowedValues = ["id", "name"];
-  const isValidOperation = values.every((update) => allowedValues.includes(update));
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "invalid values!" });
-  }
   if (req.user.rows.length === 0) {
     return res.status(401).send({ error: "Authenticate please!" });
   }

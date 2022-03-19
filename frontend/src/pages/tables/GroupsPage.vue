@@ -112,29 +112,30 @@ export default {
         }
       ]
     });
-    const sendData = () => {
-      axios
-        .post("/api/v1/group", {
-          name: form.name,
-          specialty: form.specialty,
-          specialization: form.specialization,
-          qualification: form.qualification
-        })
+    const sendData = (method, url, data, errorMSG, success) => {
+      axios({ method: method, url: url, data: data })
         .then(() => {
-          ElMessage.success("Данные добавлены!");
+          ElMessage.success(success);
           loadData();
           toggleAll();
         })
         .catch((error) => {
           if (error.response?.status === 400) {
-            ElMessage.error("Введены некорректные данные!");
+            ElMessage.error(errorMSG);
             return;
           }
           ElMessage.error("Неизвестная ошибка!");
         });
     };
+    const deleteRecord = (id) => {
+      sendData("post", "/api/v1/group/delete", { id: id }, "Удалить не удалось!", "Запись удалена!");
+    };
     const submitAdd = () => {
       form.id = null;
+      form.name = "";
+      form.specialty = "";
+      form.specialization = "";
+      form.qualification = "";
       drawer.value = true;
     };
     const submitEdit = (data) => {
@@ -145,51 +146,14 @@ export default {
       form.qualification = data.qualification;
       drawer.value = true;
     };
-    const editRecord = () => {
-      axios
-        .patch("/api/v1/group", {
-          id: form.id,
-          name: form.name,
-          specialty: form.specialty,
-          specialization: form.specialization,
-          qualification: form.qualification
-        })
-        .then(() => {
-          ElMessage.success("Данные изменены!");
-          loadData();
-          toggleAll();
-        })
-        .catch((error) => {
-          if (error.response?.status === 400) {
-            ElMessage.error("Введены некорректные данные!");
-            return;
-          }
-          ElMessage.error("Неизвестная ошибка!");
-        });
-    };
-    const deleteRecord = (id) => {
-      axios
-        .post("/api/v1/group/delete", { id: id })
-        .then((error) => {
-          if (error.response?.status === 400) {
-            ElMessage.error("Удалить не удалось!");
-            return;
-          }
-          ElMessage.success("Запись удалена!");
-          loadData();
-        })
-        .catch(() => {
-          ElMessage.error("Неизвестная ошибка!");
-        });
-    };
     const submitForm = () => {
       formRef.value.validate((valid) => {
         if (valid) {
           toggleAllOff();
           if (form.id) {
-            editRecord();
+            sendData("patch", "/api/v1/group", form, "Введены некорректные данные!", "Данные изменены!");
           } else {
-            sendData();
+            sendData("post", "/api/v1/group", form, "Введены некорректные данные!", "Данные добавлены!");
           }
           toggleAll();
           return true;

@@ -7,66 +7,49 @@ import auth from "../middleware/auth.js";
 const router = new Router();
 
 // Create new user
-router.post("/api/v1/signup", async (req, res) => {
-  const values = Object.keys(req.body);
-  const allowedValues = [
-    "login",
-    "password",
-    "name",
-    "email",
-    "group_id",
-    "role",
-    "secret_key"
-  ];
-  const isValidOperation = values.every((update) => allowedValues.includes(update));
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "invalid values!" });
-  }
-  return query(
-    req.ip,
-    "SELECT * FROM secret_keys WHERE _key=$1",
-    [
-      req.body.secret_key
-    ]
-  )
-    .then(async (resp) => {
-      if (resp.rowCount !== 0) {
-        if (!validator.isEmail(req.body.email)) {
-          return res.status(400).send({ error: "invalid email!" });
-        }
-        if (req.body.password.length < 8) {
-          return res.status(400).send({ error: "Password is too short!" });
-        }
-
-        const checkedValues = {
-          login: req.body.login,
-          password: await bcrypt.hash(req.body.password, 8),
-          name: req.body.name,
-          email: req.body.email,
-          group_id: req.body.group_id,
-          role: req.body.role
-        };
-
-        return query(
-          req.ip,
-          "INSERT INTO users (_login, _password, _name, email, group_id, role) VALUES ($1, $2, $3, $4, $5, $6)",
-          [
-            checkedValues.login,
-            checkedValues.password,
-            checkedValues.name,
-            checkedValues.email,
-            checkedValues.group_id,
-            checkedValues.role
-          ]
-        )
-          .then(() => res.status(201).send())
-          .catch(() => res.status(400).send());
+router.post("/api/v1/signup", async (req, res) => query(
+  req.ip,
+  "SELECT * FROM secret_keys WHERE _key=$1",
+  [
+    req.body.secret_key
+  ]
+)
+  .then(async (resp) => {
+    if (resp.rowCount !== 0) {
+      if (!validator.isEmail(req.body.email)) {
+        return res.status(400).send({ error: "invalid email!" });
       }
-      return res.status(400).send({ error: "invalid secret key!" });
-    })
-    .catch(() => res.status(400).send({ error: "Unknown error!" }));
-});
+      if (req.body.password.length < 8) {
+        return res.status(400).send({ error: "Password is too short!" });
+      }
+
+      const checkedValues = {
+        login: req.body.login,
+        password: await bcrypt.hash(req.body.password, 8),
+        name: req.body.name,
+        email: req.body.email,
+        group_id: req.body.group_id,
+        role: req.body.role
+      };
+
+      return query(
+        req.ip,
+        "INSERT INTO users (_login, _password, _name, email, group_id, role) VALUES ($1, $2, $3, $4, $5, $6)",
+        [
+          checkedValues.login,
+          checkedValues.password,
+          checkedValues.name,
+          checkedValues.email,
+          checkedValues.group_id,
+          checkedValues.role
+        ]
+      )
+        .then(() => res.status(201).send())
+        .catch(() => res.status(400).send());
+    }
+    return res.status(400).send({ error: "invalid secret key!" });
+  })
+  .catch(() => res.status(400).send({ error: "Unknown error!" })));
 
 // Log in exited user
 router.post("/api/v1/auth", async (req, res) => {
@@ -105,24 +88,14 @@ router.get("/api/v1/user", auth.student, async (req, res) => query(req.ip, "SELE
   .catch((e) => res.status(400).send(e)));
 
 // Read users
-router.get("/api/v1/users", auth.administrator, async (req, res) => query(req.ip, "SELECT _login, _name, email, group_id, role FROM users WHERE")
+router.get("/api/v1/users", auth.administrator, async (req, res) => query(req.ip, "SELECT _login, _name, email, group_id, role FROM users")
   .then((resp) => res.status(200).send(resp.rows))
   .catch((e) => res.status(400).send(e)));
 
 // Delete user
-router.delete("/api/v1/user", auth.administrator, async (req, res) => {
-  const values = Object.keys(req.body);
-  const allowedValues = ["id"];
-  const isValidOperation = values.every((update) => allowedValues.includes(update));
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "invalid values!" });
-  }
-
-  return query(req.ip, "DELETE FROM users WHERE _id = $1", [req.body.id])
-    .then((resp) => res.status(200).send(resp.rows[0]))
-    .catch((e) => res.status(500).send(e));
-});
+router.delete("/api/v1/user", auth.administrator, async (req, res) => query(req.ip, "DELETE FROM users WHERE _id = $1", [req.body.id])
+  .then((resp) => res.status(200).send(resp.rows[0]))
+  .catch((e) => res.status(500).send(e)));
 
 // Delete current user
 router.delete("/api/v1/user/delete", auth.student, async (req, res) => {
@@ -133,14 +106,6 @@ router.delete("/api/v1/user/delete", auth.student, async (req, res) => {
 
 // Update user
 router.patch("/api/v1/user", auth.administrator, async (req, res) => {
-  const values = Object.keys(req.body);
-  const allowedValues = ["password", "name", "email", "group_id"];
-  const isValidOperation = values.every((update) => allowedValues.includes(update));
-
-  if (!isValidOperation) {
-    return res.status(400).send({ error: "invalid values!" });
-  }
-
   const checkedValues = {
     password: req.user.rows[0]._password,
     name: req.user.rows[0]._name,
