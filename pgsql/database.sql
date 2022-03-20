@@ -79,7 +79,8 @@ CREATE TABLE files (
     _name varchar(255) NOT NULL,
     mimetype varchar(64) NOT NULL,
     user_id uuid NOT NULL,
-    filepath text NOT NULL
+    filepath text NOT NULL,
+    _public boolean DEFAULT false
 );
 
 ALTER TABLE files

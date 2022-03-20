@@ -2,24 +2,24 @@ import axios from "../axios.js";
 
 const store = {
   state: {
-    UserName: undefined
+    UserName: null,
+    UserRole: null
   },
   getters: {
-    getUserName(state) {
+    getUserData(state) {
       return {
-        UserName: state.UserName
+        UserName: state.UserName,
+        UserRole: state.UserRole
       };
     }
   },
   mutations: {
-    setUserName(state, payload) {
-      state.UserName = payload.name;
-    },
-    getUserName(state) {
+    getUserData(state) {
       axios
         .get("/api/v1/user")
         .then((data) => {
           state.UserName = data.data._name;
+          state.UserRole = data.data.role;
         })
         .catch((error) => {
           console.log(error);
@@ -33,12 +33,9 @@ const store = {
         url: "/api/v1/auth/logout"
       });
     },
-    getUserName(context) {
-      context.commit("getUserName");
+    getUserData(context) {
+      context.commit("getUserData");
     },
-    setUserName(context, payload) {
-      context.commit("setUserName", payload);
-    }
   }
 };
 

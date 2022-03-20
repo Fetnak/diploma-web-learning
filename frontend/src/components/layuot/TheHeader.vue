@@ -12,6 +12,12 @@
         <span>Задания</span>
       </template>
     </el-menu-item>
+    <el-menu-item index="/files">
+      <template #title>
+        <el-icon><document /></el-icon>
+        <span>Файлы</span>
+      </template>
+    </el-menu-item>
     <el-sub-menu index="Other">
       <template #title>Прочее</template>
       <el-menu-item index="/groups">
@@ -38,12 +44,6 @@
           <span>Секретные ключи</span>
         </template>
       </el-menu-item>
-      <el-sub-menu index="2-4">
-        <template #title>item four</template>
-        <el-menu-item index="2-4-1">item one</el-menu-item>
-        <el-menu-item index="2-4-2">item two</el-menu-item>
-        <el-menu-item index="2-4-3">item three</el-menu-item>
-      </el-sub-menu>
     </el-sub-menu>
     <h2 style="margin: auto auto">{{ header }}</h2>
     <el-sub-menu style="margin-left: auto; margin-right: 0" index="user">
@@ -64,13 +64,13 @@
 </template>
 
 <script>
-import { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy } from "@element-plus/icons-vue";
+import { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy, Document } from "@element-plus/icons-vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
 export default {
-  components: { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy },
+  components: { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy, Document },
   props: ["header"],
   emits: [],
   methods: {},
@@ -80,10 +80,10 @@ export default {
     const store = useStore();
 
     const UserName = computed(() => {
-      if (store.getters.getUserName) {
-        store.dispatch("getUserName");
+      if (store.getters.getUserData) {
+        store.dispatch("getUserData");
       }
-      return store.getters.getUserName.UserName;
+      return store.getters.getUserData.UserName;
     });
 
     const handleSelect = (key) => {

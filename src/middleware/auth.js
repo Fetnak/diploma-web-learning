@@ -40,7 +40,7 @@ const administrator = async (req, res, next) => {
 
 const findByCredentials = async (login, password) => {
   const user = (
-    await postgres.query("SELECT * FROM users WHERE _login = $1", [login])
+    await postgres.query("SELECT * FROM users WHERE _login = $1 AND activated = true", [login])
   ).rows[0];
   if (!user) {
     throw new Error("User not found");

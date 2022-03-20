@@ -5,6 +5,7 @@ import UserAuth from "./pages/auth/UserAuth.vue";
 import UserRegister from "./pages/auth/UserRegister.vue";
 import MainPage from "./pages/main/MainPage.vue";
 import DocumentsPage from "./pages/documents/DocumentsPage.vue"
+import FilesPage from "./pages/documents/FilesPage.vue"
 import GroupsPage from "./pages/tables/GroupsPage.vue"
 import SubjectsPage from "./pages/tables/SubjectsPage.vue"
 import UsersPage from "./pages/tables/UsersPage.vue"
@@ -42,6 +43,12 @@ const router = createRouter({
       path: "/documents",
       meta: { requireAuth: true },
       component: DocumentsPage,
+    },
+    {
+      name: "Files",
+      path: "/files",
+      meta: { requireAuth: true },
+      component: FilesPage,
     },
     {
       name: "Groups",

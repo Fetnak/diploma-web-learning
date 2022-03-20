@@ -51,16 +51,12 @@ router.post("/api/v1/signup", async (req, res) => query(
 
 // Create new user as admin
 router.post("/api/v1/user", auth.administrator, async (req, res) => {
-  console.log(req.body);
-  console.log("111111");
   if (!validator.isEmail(req.body.email)) {
     return res.status(400).send({ error: "invalid email!" });
   }
-  console.log("111222");
   if (req.body.password.length < 8) {
     return res.status(400).send({ error: "Password is too short!" });
   }
-  console.log("222222");
   const checkedValues = {
     login: req.body.login,
     password: await bcrypt.hash(req.body.password, 8),
@@ -69,8 +65,6 @@ router.post("/api/v1/user", auth.administrator, async (req, res) => {
     group_id: req.body.group_id,
     role: req.body.role
   };
-
-  console.log("333333");
   return query(
     req.ip,
     "INSERT INTO users (_login, _password, _name, email, group_id, role) VALUES ($1, $2, $3, $4, $5, $6)",
@@ -119,7 +113,7 @@ router.get("/api/v1/auth/logout", auth.student, async (req, res, next) => {
 });
 
 // Read user
-router.get("/api/v1/user", auth.student, async (req, res) => query(req.ip, "SELECT _login, _name, email, group_id FROM users WHERE _id = $1", [req.session.userId])
+router.get("/api/v1/user", auth.student, async (req, res) => query(req.ip, "SELECT _login, _name, email, group_id, role FROM users WHERE _id = $1", [req.session.userId])
   .then((resp) => res.status(200).send(resp.rows[0]))
   .catch((e) => res.status(400).send(e)));
 
@@ -140,9 +134,9 @@ router.post("/api/v1/user/delete", auth.administrator, async (req, res) => query
   .then(() => res.status(200).send())
   .catch(() => res.status(400).send()));
 
-// Delete current user
-router.delete("/api/v1/user/delete", auth.student, async (req, res) => {
-  query(req.ip, "DELETE FROM users WHERE _id = $1", [req.user.rows[0]._id])
+// Deactivate current user
+router.delete("/api/v1/user/deactivate", auth.student, async (req, res) => {
+  query(req.ip, "UPDATE users SET activated = false WHERE _id = $1", [req.session.userId])
     .then(() => res.status(200).send())
     .catch((e) => res.status(500).send(e));
 });
@@ -174,7 +168,7 @@ router.patch("/api/v1/user", auth.administrator, async (req, res) => {
       checkedValues.password,
       checkedValues.name,
       checkedValues.email,
-      req.user.rows[0]._id
+      req.session.userId
     ]
   )
     .then((resp) => res.status(200).send(resp))
