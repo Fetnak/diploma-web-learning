@@ -3,11 +3,13 @@
 </template>
 
 <script>
-
 export default {
-  name: 'App',
-  components: { }
-}
+  name: "App",
+  components: {},
+  created() {
+    document.title = "Дистанционное самообучение";
+  }
+};
 </script>
 
 <style>
