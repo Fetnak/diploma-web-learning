@@ -1,6 +1,9 @@
 <template>
   <the-header header="Документы"></the-header>
   <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
+    Назад
+  </el-button>
+  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
     Добавить документ
   </el-button>
   <el-drawer v-model="drawer" title="Добавить документ" :with-header="false">
@@ -70,7 +73,7 @@
     <el-container>
       <el-main style="border-right: none">
         <el-scrollbar>
-          <el-table :data="filterTableData" border stripe highlight-current-row style="width: 100%">
+          <el-table :data="filterTableData" border stripe highlight-current-row style="width: 100%" table-layout="auto" @current-change="selectFolder">
             <el-table-column fixed="left" sortable prop="_name" label="Название документа" />
             <el-table-column sortable prop="subject_name" label="Дисциплина" />
             <el-table-column sortable prop="group_name" label="Группа" />
@@ -191,7 +194,7 @@ export default {
     const drawer = ref(false);
     const loadData = () =>
       axios
-        .post("/api/v1/documents/admin/read")
+        .post("/api/v1/documents/admin/read", { document_id: choosenDocument.value })
         .then((data) => {
           console.log(data.data)
           tableData.value = data.data;
@@ -199,6 +202,11 @@ export default {
         .catch(() => {
           ElMessage.error("Неизвестная ошибка!");
         });
+    const choosenDocument = ref("")
+    const selectFolder = (data) => {
+      choosenDocument.value = data._id
+      loadData()
+    }
     const rules = reactive({
       login: [
         {
@@ -318,6 +326,7 @@ export default {
     });
 
     return {
+      selectFolder,
       DownloadFile,
       groups,
       subjects,

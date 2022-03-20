@@ -24,10 +24,13 @@ router.post("/api/v1/documents", auth.teacher, async (req, res) => {
 
 // Read all documents
 router.post("/api/v1/documents/admin/read", auth.teacher, async (req, res) => {
-  query(
-    req.ip,
-    "SELECT documents._id, documents._name, document_id, subject_id, group_id, file_id, groups._name AS group_name, subjects._name AS subject_name, files.mimetype FROM documents LEFT JOIN groups ON documents.group_id = groups._id LEFT JOIN subjects ON documents.subject_id = subjects._id LEFT JOIN files ON documents.file_id = documents._id"
-  )
+  const textQuery = "SELECT documents._id, documents._name, document_id, subject_id, group_id, file_id, groups._name AS group_name, subjects._name AS subject_name, files.mimetype FROM documents LEFT JOIN groups ON documents.group_id = groups._id LEFT JOIN subjects ON documents.subject_id = subjects._id LEFT JOIN files ON documents.file_id = documents._id";
+  if (req.body.document_id) {
+    return query(req.ip, textQuery.concat(" WHERE document_id = $1"), [req.body.document_id])
+      .then((resp) => res.status(200).send(resp.rows))
+      .catch(() => res.status(400).send());
+  }
+  return query(req.ip, textQuery.concat(" WHERE document_id IS NULL"))
     .then((resp) => res.status(200).send(resp.rows))
     .catch(() => res.status(400).send());
 });
