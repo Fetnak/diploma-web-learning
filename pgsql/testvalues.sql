@@ -8,7 +8,7 @@ VALUES
     ('070bedc3-4f1a-4076-9432-21ec7820770d', 'testadmin', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Осипов Бернар Закирович', 'testadmin@example.com', null, null, 'administrator'),
     ('371be351-3cde-4e6c-8177-18323de47c2a', 'testteacher1', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Федосеев Адольф Григорьевич', 'testteacher1@example.com', '9fe196f5-c269-4a34-826d-2f41cdc74c97', null, 'teacher'),
     ('f9d39983-a553-40e8-8fa3-d3b8f3a1e9d1', 'testteacher2', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Добровольская Кристина Константиновна', 'testteacher2@example.com', '1ed07ac2-627d-46e0-b3a8-680adc99fdbf', null, 'teacher'),
-    ('f06c23bc-e434-4ac0-9950-abf25e3e49d4', 'teststudent1', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Милованов Бернар Егорович', 'teststudent1@example.com', '9fe196f5-c269-4a34-826d-2f41cdc74c97', null, 'student'),в
+    ('f06c23bc-e434-4ac0-9950-abf25e3e49d4', 'teststudent1', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Милованов Бернар Егорович', 'teststudent1@example.com', '9fe196f5-c269-4a34-826d-2f41cdc74c97', null, 'student'),
     ('b8f06a1b-65d1-4b7c-85d7-da6675a34a8b', 'teststudent2', '$2a$08$XDrfpGKZGwPKd4PYB2LpO.c2h87TaRXWj10CluoI1wp0K9ZPwJKbm', 'Остимчук Кирилл Олегович', 'teststudent2@example.com', '1ed07ac2-627d-46e0-b3a8-680adc99fdbf', null, 'student');
 
 INSERT INTO secret_keys (_key)

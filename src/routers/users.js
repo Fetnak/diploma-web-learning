@@ -124,8 +124,15 @@ router.get("/api/v1/user", auth.student, async (req, res) => query(req.ip, "SELE
   .catch((e) => res.status(400).send(e)));
 
 // Read users
-router.get("/api/v1/users", auth.administrator, async (req, res) => query(req.ip, "SELECT users._id, users._login, users._name, users.email, users.group_id, users.role, groups._name AS group FROM users JOIN groups ON users.group_id = groups._id")
-  .then((resp) => res.status(200).send(resp.rows))
+router.post("/api/v1/users/read", auth.administrator, async (req, res) => {
+  query(req.ip, "SELECT users._id, users._login, users._name, users.email, users.group_id, users.role, groups._name AS group FROM users LEFT JOIN groups ON users.group_id = groups._id WHERE users.activated = $1", [req.body.activated])
+    .then((resp) => res.status(200).send(resp.rows))
+    .catch(() => res.status(400).send());
+});
+
+// Deactivate user
+router.post("/api/v1/user/deactivate", auth.administrator, async (req, res) => query(req.ip, "UPDATE users SET activated = $2 WHERE _id = $1", [req.body.id, req.body.activated])
+  .then(() => res.status(200).send())
   .catch(() => res.status(400).send()));
 
 // Delete user

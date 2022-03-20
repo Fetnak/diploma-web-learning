@@ -35,7 +35,8 @@ CREATE TABLE users (
     email varchar(255) NOT NULL UNIQUE,
     group_id uuid,
     avatarpath text,
-    role user_role NOT NULL
+    role user_role NOT NULL,
+    activated bool DEFAULT true
 );
 
 ALTER TABLE users

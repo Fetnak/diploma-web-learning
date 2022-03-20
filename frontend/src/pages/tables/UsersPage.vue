@@ -3,7 +3,13 @@
   <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
     Добавить пользователя
   </el-button>
-
+  <el-switch
+    v-model="activated"
+    size="large"
+    active-text="Отобразить отключенные аккаунты"
+    style="margin-left: 1rem; margin-top: 1rem;"
+    @click="loadData()"
+  />
   <el-drawer v-model="drawer" title="Добавить пользователя" :with-header="false">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
       <el-form-item label="Логин" prop="login">
@@ -55,7 +61,7 @@
             <el-table-column fixed="left" sortable prop="_login" label="Логин" />
             <el-table-column sortable prop="_name" label="Имя пользователя" />
             <el-table-column sortable prop="email" label="Электронная почта" />
-            <el-table-column sortable prop="group" label="Группы" />
+            <el-table-column sortable prop="group" label="Группа" />
             <el-table-column sortable prop="role" label="Роль" />
             <el-table-column align="center" width="150ch">
               <template #header>
@@ -64,6 +70,18 @@
               <template #default="scope">
                 <el-button type="primary" :icon="Edit" circle style="margin-left: auto" @click="submitEdit(scope.row)" />
                 <el-popconfirm
+                  confirm-button-text="Да"
+                  cancel-button-text="Нет"
+                  :title="deactivateMessage()"
+                  @confirm="deactivateRecord(scope.row._id)"
+                >
+                  <template #reference>
+                    <el-button type="warning" :icon="Switch" circle style="margin-rightleft: auto" />
+                  </template>
+                </el-popconfirm>
+                <el-popconfirm
+                
+                  v-if="activated"
                   confirm-button-text="Да"
                   cancel-button-text="Нет"
                   title="Вы хотите удалить запись?"
@@ -85,13 +103,14 @@
 <script>
 import { ref, reactive, computed, onBeforeMount } from "vue";
 import { ElMessage } from "element-plus";
-import { Edit, Delete } from "@element-plus/icons-vue";
+import { Edit, Switch, Delete } from "@element-plus/icons-vue";
 import axios from "../../store/axios.js";
 import TheHeader from "../../components/layuot/TheHeader.vue";
 
 export default {
   components: { TheHeader },
   setup() {
+    const activated = ref(false)
     const form = reactive({
       id: null,
       login: "",
@@ -100,7 +119,8 @@ export default {
       email: "",
       group_id: "",
       group: "",
-      role: ""
+      role: "",
+      activated: !activated.value
     });
     const disable = reactive({
       login: false,
@@ -136,12 +156,15 @@ export default {
         disable[key] = false;
       });
     };
+    const deactivateMessage = () => {
+      return ((activated.value) ? `Вы хотите активировать запись?` : `Вы хотите отключить запись?`)
+    }
     const tableData = ref([]);
     const formRef = ref(null);
     const drawer = ref(false);
     const loadData = () =>
       axios
-        .get("/api/v1/users")
+        .post("/api/v1/users/read", {activated: !activated.value})
         .then((data) => {
           tableData.value = data.data;
         })
@@ -200,6 +223,9 @@ export default {
           ElMessage.error("Неизвестная ошибка!");
         });
     };
+    const deactivateRecord = (id) => {
+      sendData("post", "/api/v1/user/deactivate", { id: id, activated: activated.value }, "Отключить не удалось!", ((activated.value) ? "Запись активирована!" : "Запись отключена!"));
+    };
     const deleteRecord = (id) => {
       sendData("post", "/api/v1/user/delete", { id: id }, "Удалить не удалось!", "Запись удалена!");
     };
@@ -233,7 +259,6 @@ export default {
     };
     const submitForm = () => {
       formRef.value.validate((valid) => {
-        console.log(form)
         if (valid) {
           toggleAllOff();
           if (form.id) {
@@ -267,17 +292,22 @@ export default {
       tableData,
       drawer,
       form,
+      activated,
       rules,
+      deactivateMessage,
       selectGroup,
       submitForm,
       disable,
       formRef,
       search,
       filterTableData,
+      loadData,
+      deactivateRecord,
       deleteRecord,
       submitAdd,
       submitEdit,
       Edit,
+      Switch,
       Delete
     };
   }
