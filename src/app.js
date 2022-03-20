@@ -10,6 +10,7 @@ import filesRouter from "./routers/files.js";
 import groupsRouter from "./routers/groups.js";
 import subjectsRouter from "./routers/subjects.js";
 import documentsRouter from "./routers/documents.js";
+import secretkeysRouter from "./routers/secretkeys.js";
 
 const app = express();
 const server = createServer(app);
@@ -42,7 +43,8 @@ app.use([
   filesRouter,
   documentsRouter,
   groupsRouter,
-  subjectsRouter
+  subjectsRouter,
+  secretkeysRouter
 ]);
 
 postgres.query("SELECT NOW()", (err, res) => {

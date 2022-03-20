@@ -8,6 +8,7 @@ import DocumentsPage from "./pages/documents/DocumentsPage.vue"
 import GroupsPage from "./pages/tables/GroupsPage.vue"
 import SubjectsPage from "./pages/tables/SubjectsPage.vue"
 import UsersPage from "./pages/tables/UsersPage.vue"
+import SecretKeysPage from "./pages/tables/SecretKeysPage.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -59,6 +60,12 @@ const router = createRouter({
       path: "/users",
       meta: { requireAuth: true },
       component: UsersPage,
+    },
+    {
+      name: "SecretKeys",
+      path: "/secretkeys",
+      meta: { requireAuth: true },
+      component: SecretKeysPage,
     },
     //{ path: "/test2/:testId", component: HelloWorld, props: true },
     { path: "/:404(.*)", component: MainPage, alias: "/" },

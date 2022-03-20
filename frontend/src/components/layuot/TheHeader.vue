@@ -16,7 +16,7 @@
       <template #title>Прочее</template>
       <el-menu-item index="/groups">
         <template #title>
-          <el-icon><avatar /></el-icon>
+          <el-icon><document-copy /></el-icon>
           <span>Группы</span>
         </template>
       </el-menu-item>
@@ -24,6 +24,18 @@
         <template #title>
           <el-icon><management /></el-icon>
           <span>Дисциплины</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="/users">
+        <template #title>
+          <el-icon><avatar /></el-icon>
+          <span>Пользователи</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="/secretkeys">
+        <template #title>
+          <el-icon><key /></el-icon>
+          <span>Секретные ключи</span>
         </template>
       </el-menu-item>
       <el-sub-menu index="2-4">
@@ -52,13 +64,13 @@
 </template>
 
 <script>
-import { HomeFilled, List, Avatar, Management, UserFilled } from "@element-plus/icons-vue";
+import { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy } from "@element-plus/icons-vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
 export default {
-  components: { HomeFilled, List, Avatar, Management, UserFilled },
+  components: { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy },
   props: ["header"],
   emits: [],
   methods: {},

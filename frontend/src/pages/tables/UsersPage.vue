@@ -149,17 +149,38 @@ export default {
           ElMessage.error("Неизвестная ошибка!");
         });
     const rules = reactive({
-      name: [
+      login: [
         {
           required: true,
-          message: "Название дисциплины обязательно",
+          message: "Логин обязателен",
           trigger: "blur"
         }
       ],
-      short_name: [
+      name: [
         {
           required: true,
-          message: "Коротное название дисциплины обязательно",
+          message: "Имя пользователя обязательно",
+          trigger: "blur"
+        }
+      ],
+      email: [
+        {
+          required: true,
+          message: "Электронная почта обязательно",
+          trigger: "blur"
+        }
+      ],
+      group_id: [
+        {
+          required: true,
+          message: "Группа обязательна",
+          trigger: "blur"
+        }
+      ],
+      role: [
+        {
+          required: true,
+          message: "Роль обязательна",
           trigger: "blur"
         }
       ]

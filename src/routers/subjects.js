@@ -28,7 +28,7 @@ router.post("/api/v1/subjects/delete", auth.administrator, async (req, res) => q
   .then((resp) => res.status(200).send(resp.rows[0]))
   .catch(() => res.status(400).send()));
 
-// Update group
+// Update subject
 router.patch("/api/v1/subjects", auth.administrator, async (req, res) => query(
   req.ip,
   "UPDATE subjects SET (_name, short_name) = ($1, $2) WHERE _id = $3",
