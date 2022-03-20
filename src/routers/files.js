@@ -17,16 +17,13 @@ const upload = multer({
 // Upload new file
 router.post("/api/v1/file/upload", upload.single("file"), async (req, res) => query(req.ip, "INSERT INTO files (_name, mimetype, user_id, filepath) VALUES ($1, $2, $3, $4)", [req.file.originalname, req.file.mimetype, req.session.userId, req.file.path])
   .then(() => res.status(201).send())
-  .catch((e) => {
-    console.log(e);
-    res.status(400).send();
-  }));
+  .catch(() => res.status(400).send()));
 
 // Read all files for current user
-router.get("/api/v1/files", auth.student, async (req, res) => query(req.ip, "SELECT _id, _name, mimetype, filepath FROM files WHERE user_id = $1", [req.session.userId]).then((resp) => res.status(200).send(resp.rows)).catch((e) => res.status(400).send(e)));
+router.get("/api/v1/files", auth.student, async (req, res) => query(req.ip, "SELECT _id, _name, mimetype, filepath, _public FROM files WHERE user_id = $1", [req.session.userId]).then((resp) => res.status(200).send(resp.rows)).catch((e) => res.status(400).send(e)));
 
 // Get file
-router.get("/api/v1/file", auth.student, async (req, res) => query(req.ip, "SELECT _name FROM files WHERE _id = $1 AND (user_id = $2 OR _public = true)", [req.body.id, req.session.userId])
+router.post("/api/v1/file/download", auth.student, async (req, res) => query(req.ip, "SELECT * FROM files WHERE _id = $1 AND (user_id = $2 OR _public = true)", [req.body.id, req.session.userId])
   .then((file) => res.status(200).sendFile(path.join(path.resolve(), file.rows[0].filepath)))
   .catch((e) => res.status(404).send(e)));
 

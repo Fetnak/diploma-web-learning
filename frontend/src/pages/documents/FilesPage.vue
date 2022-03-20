@@ -1,11 +1,15 @@
 <template>
   <the-header header="Файлы"></the-header>
   <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">Загрузить файл</el-button>
+  <label>
+    File
+    <input type="file" id="file" ref="file" v-on:change="onChangeFileUpload()" />
+  </label>
   <el-upload
     ref="upload"
     action="http://localhost:3000/api/v1/file/upload/"
     :limit="1"
-    :on-exceed="handlePreview"
+    :on-exceed="onChangeFileUpload"
     :auto-upload="false"
   >
     <el-button type="primary">Click to upload</el-button>
@@ -13,7 +17,7 @@
       <div class="el-upload__tip">jpg/png files with a size less than 500kb</div>
     </template>
   </el-upload>
-  <el-button type="primary" @click="handlePreview">asdasdasdasd</el-button>
+  <el-button type="primary" @click="submitUpload">asdasdasdasd</el-button>
   <el-drawer v-model="drawer" title="Загрузить файл" :with-header="false">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
       <el-form-item label="Ключ" prop="key">
@@ -38,7 +42,8 @@
                 <el-input v-model="search" placeholder="Поиск" />
               </template>
               <template #default="scope">
-                <el-button type="primary" :icon="Edit" circle style="margin-left: auto" @click="submitEdit(scope.row)" />
+                <el-button type="success" :icon="Download" circle @click="DownloadFile(scope.row)" />
+                <el-button type="primary" :icon="Edit" circle @click="submitEdit(scope.row)" />
                 <el-popconfirm
                   confirm-button-text="Да"
                   cancel-button-text="Нет"
@@ -61,11 +66,40 @@
 <script>
 import { ref, reactive, computed, onBeforeMount } from "vue";
 import { ElMessage } from "element-plus";
-import { Edit, Delete } from "@element-plus/icons-vue";
+import { Download, Edit, Delete } from "@element-plus/icons-vue";
 import axios from "../../store/axios.js";
+//import originAxios from "axios";
 import TheHeader from "../../components/layuot/TheHeader.vue";
 
 export default {
+  data() {
+    return {
+      file: ""
+    };
+  },
+  methods: {
+    submitUpload() {
+      const formData = new FormData();
+      formData.append("file", this.file);
+      console.log(this.file);
+      axios
+        .post("/api/v1/file/upload", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        })
+        .then(function (data) {
+          console.log(data.data);
+        })
+        .catch(function () {
+          console.log("FAILURE!!");
+        });
+    },
+    onChangeFileUpload() {
+      console.log(this.$refs.file);
+      this.file = this.$refs.file.files[0];
+    }
+  },
   components: { TheHeader },
   setup() {
     const upload = ref();
@@ -74,10 +108,6 @@ export default {
       name: "",
       public: false
     });
-    const handlePreview = (file) => {
-      console.log("FILE" + JSON.stringify(file));
-      console.log("UPLOAD" + JSON.stringify(upload.value));
-    };
     const disable = reactive({
       name: false,
       public: false,
@@ -114,6 +144,26 @@ export default {
         }
       ]
     });
+    const DownloadFile = (fileInfo) => {
+      axios({ method: "post", url: "/api/v1/file/download", data: { id: fileInfo._id }, responseType: "blob" })
+        .then((res) => {
+          ElMessage.success("Файл загружается");
+          const blob = new Blob([res.data], { type: fileInfo.mimetype });
+          const docUrl = document.createElement("a");
+          docUrl.href = URL.createObjectURL(blob);
+          docUrl.setAttribute("download", fileInfo._name);
+          document.body.appendChild(docUrl);
+          docUrl.click();
+          URL.revokeObjectURL(docUrl.href);
+        })
+        .catch((error) => {
+          if (error.response?.status === 400) {
+            ElMessage.error("Не удалось загрузить файл");
+            return;
+          }
+          ElMessage.error("Неизвестная ошибка!");
+        });
+    };
     const sendData = (method, url, data, errorMSG, success) => {
       axios({ method: method, url: url, data: data })
         .then(() => {
@@ -167,7 +217,6 @@ export default {
 
     return {
       upload,
-      handlePreview,
       tableData,
       drawer,
       form,
@@ -180,8 +229,10 @@ export default {
       deleteRecord,
       submitAdd,
       submitEdit,
+      Download,
       Edit,
-      Delete
+      Delete,
+      DownloadFile
     };
   }
 };
