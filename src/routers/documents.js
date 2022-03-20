@@ -23,9 +23,9 @@ router.post("/api/v1/documents", auth.teacher, async (req, res) => {
 });
 
 // Read all documents
-router.post("/api/v1/documents/admin/read", auth.teacher, async (req, res) => {
-  const textQuery = "SELECT documents._id, documents._name, document_id, subject_id, group_id, file_id, groups._name AS group_name, subjects._name AS subject_name, files.mimetype FROM documents LEFT JOIN groups ON documents.group_id = groups._id LEFT JOIN subjects ON documents.subject_id = subjects._id LEFT JOIN files ON documents.file_id = documents._id";
-  if (req.body.document_id) {
+router.post("/api/v1/documents/read", auth.student, async (req, res) => {
+  const textQuery = "SELECT documents._id, documents._name, document_id, subject_id, group_id, file_id, groups._name AS group_name, subjects._name AS subject_name, files.mimetype, files._name AS file_name FROM documents LEFT JOIN groups ON documents.group_id = groups._id LEFT JOIN subjects ON documents.subject_id = subjects._id LEFT JOIN files ON documents.file_id = files._id";
+  if (req.body.document_id || !(req.body.document_id === "")) {
     return query(req.ip, textQuery.concat(" WHERE document_id = $1"), [req.body.document_id])
       .then((resp) => res.status(200).send(resp.rows))
       .catch(() => res.status(400).send());
@@ -35,16 +35,21 @@ router.post("/api/v1/documents/admin/read", auth.teacher, async (req, res) => {
     .catch(() => res.status(400).send());
 });
 
-// Read all documents for current user's group
-router.get("/api/v1/documents/read", auth.student, async (req, res) => {
-  query(
-    req.ip,
-    "SELECT _id, _name, document_id, subject_id, file_id FROM documents WHERE group_id = (SELECT group_id FROM users WHERE _id = $1)",
-    [req.session.userId]
-  )
-    .then((resp) => res.status(200).send(resp.rows))
-    .catch((e) => res.status(400).send(e));
-});
+// Read root document
+router.post("/api/v1/documents/read/root", auth.teacher, async (req, res) => query(req.ip, "SELECT document_id FROM documents WHERE _id = $1", [req.body.id])
+  .then((resp) => res.status(200).send(resp.rows[0]))
+  .catch(() => res.status(400).send()));
+
+// // Read all documents for current user's group
+// router.get("/api/v1/documents/read", auth.student, async (req, res) => {
+//   query(
+//     req.ip,
+//     "SELECT _id, _name, document_id, subject_id, file_id FROM documents WHERE group_id = (SELECT group_id FROM users WHERE _id = $1)",
+//     [req.session.userId]
+//   )
+//     .then((resp) => res.status(200).send(resp.rows))
+//     .catch((e) => res.status(400).send(e));
+// });
 
 // Update document
 router.patch("/api/v1/documents", auth.teacher, async (req, res) => {

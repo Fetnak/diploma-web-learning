@@ -1,11 +1,9 @@
 <template>
   <the-header header="Документы"></the-header>
-  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
+  <el-button :icon="Back" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="selectPreviousFolder()">
     Назад
   </el-button>
-  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
-    Добавить документ
-  </el-button>
+  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">Добавить документ</el-button>
   <el-drawer v-model="drawer" title="Добавить документ" :with-header="false">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
       <el-form-item label="Название документа" prop="name">
@@ -46,20 +44,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Файл" prop="file_id">
-        <el-select
-          v-model="form.file_id"
-          placeholder="Выберите файл"
-          :disabled="disable.file_id"
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="file in files"
-            :key="file._id"
-            :label="file._name"
-            :value="file._id"
-            @click="selectFile(file._id)"
-          />
+        <el-select v-model="form.file_id" placeholder="Выберите файл" :disabled="disable.file_id" clearable style="width: 100%">
+          <el-option v-for="file in files" :key="file._id" :label="file._name" :value="file._id" @click="selectFile(file._id)" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -73,7 +59,15 @@
     <el-container>
       <el-main style="border-right: none">
         <el-scrollbar>
-          <el-table :data="filterTableData" border stripe highlight-current-row style="width: 100%" table-layout="auto" @current-change="selectFolder">
+          <el-table
+            :data="filterTableData"
+            border
+            stripe
+            highlight-current-row
+            style="width: 100%"
+            table-layout="auto"
+            @cell-dblclick="selectFolder"
+          >
             <el-table-column fixed="left" sortable prop="_name" label="Название документа" />
             <el-table-column sortable prop="subject_name" label="Дисциплина" />
             <el-table-column sortable prop="group_name" label="Группа" />
@@ -82,7 +76,14 @@
                 <el-input v-model="search" placeholder="Поиск" />
               </template>
               <template #default="scope">
-                <el-button v-if="scope.row.file_id" type="success" :icon="Download" circle style="margin-left: auto" @click="DownloadFile(scope.row)" />
+                <el-button
+                  v-if="scope.row.file_id"
+                  type="success"
+                  :icon="Download"
+                  circle
+                  style="margin-left: auto"
+                  @click="DownloadFile(scope.row)"
+                />
                 <el-button type="primary" :icon="Edit" circle style="margin-rightleft: auto" @click="submitEdit(scope.row)" />
                 <el-popconfirm
                   confirm-button-text="Да"
@@ -106,7 +107,7 @@
 <script>
 import { ref, reactive, computed, onBeforeMount } from "vue";
 import { ElMessage } from "element-plus";
-import { Download, Edit, Delete } from "@element-plus/icons-vue";
+import { Download, Edit, Delete, Back } from "@element-plus/icons-vue";
 import axios from "../../store/axios.js";
 import TheHeader from "../../components/layuot/TheHeader.vue";
 
@@ -166,7 +167,8 @@ export default {
           const blob = new Blob([res.data], { type: fileInfo.mimetype });
           const docUrl = document.createElement("a");
           docUrl.href = URL.createObjectURL(blob);
-          docUrl.setAttribute("download", fileInfo._name);
+          console.log(fileInfo)
+          docUrl.setAttribute("download", fileInfo.file_name);
           document.body.appendChild(docUrl);
           docUrl.click();
           URL.revokeObjectURL(docUrl.href);
@@ -194,52 +196,35 @@ export default {
     const drawer = ref(false);
     const loadData = () =>
       axios
-        .post("/api/v1/documents/admin/read", { document_id: choosenDocument.value })
+        .post("/api/v1/documents/read", { document_id: choosenDocument.value })
         .then((data) => {
-          console.log(data.data)
           tableData.value = data.data;
         })
         .catch(() => {
           ElMessage.error("Неизвестная ошибка!");
         });
     const choosenDocument = ref("")
-    const selectFolder = (data) => {
+    const selectFolder = async (data) => {
       choosenDocument.value = data._id
-      loadData()
+      await loadData()
+    }
+    const selectPreviousFolder = async () => {
+      await axios
+        .post("/api/v1/documents/read/root", { id: choosenDocument.value })
+        .then(async (data) => {
+          console.log(data.data.document_id)
+          choosenDocument.value = data.data.document_id ? data.data.document_id : "";
+          await loadData();
+        })
+        .catch(() => {
+          ElMessage.error("Неизвестная ошибка!");
+        });
     }
     const rules = reactive({
-      login: [
-        {
-          required: true,
-          message: "Логин обязателен",
-          trigger: "blur"
-        }
-      ],
       name: [
         {
           required: true,
           message: "Имя пользователя обязательно",
-          trigger: "blur"
-        }
-      ],
-      email: [
-        {
-          required: true,
-          message: "Электронная почта обязательно",
-          trigger: "blur"
-        }
-      ],
-      group_id: [
-        {
-          required: true,
-          message: "Группа обязательна",
-          trigger: "blur"
-        }
-      ],
-      role: [
-        {
-          required: true,
-          message: "Роль обязательна",
           trigger: "blur"
         }
       ]
@@ -326,6 +311,7 @@ export default {
     });
 
     return {
+      selectPreviousFolder,
       selectFolder,
       DownloadFile,
       groups,
@@ -349,7 +335,8 @@ export default {
       submitEdit,
       Edit,
       Download,
-      Delete
+      Delete,
+      Back
     };
   }
 };
