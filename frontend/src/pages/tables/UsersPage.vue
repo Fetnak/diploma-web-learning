@@ -1,14 +1,44 @@
 <template>
-  <the-header header="Дисциплины"></the-header>
-  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">Добавить дисциплину</el-button>
+  <the-header header="Пользователи"></the-header>
+  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
+    Добавить пользователя
+  </el-button>
 
-  <el-drawer v-model="drawer" title="Добавить дисциплину" :with-header="false">
+  <el-drawer v-model="drawer" title="Добавить пользователя" :with-header="false">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
-      <el-form-item label="Название дисциплины" prop="name">
-        <el-input v-model="form.name" :disabled="disable.name" maxlength="32" clearable></el-input>
+      <el-form-item label="Логин" prop="login">
+        <el-input v-model="form.login" :disabled="disable.login" maxlength="255" clearable></el-input>
       </el-form-item>
-      <el-form-item label="Короткое название" prop="short_name">
-        <el-input v-model="form.short_name" :disabled="disable.short_name" maxlength="255" clearable></el-input>
+      <el-form-item label="Пароль" prop="password">
+        <el-input v-model="form.password" :disabled="disable.password" maxlength="128" type="password"></el-input>
+      </el-form-item>
+      <el-form-item label="Имя" prop="name">
+        <el-input v-model="form.name" :disabled="disable.name" maxlength="255" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="Электронная почта" prop="email">
+        <el-input v-model="form.email" :disabled="disable.email" maxlength="255" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="Группы" prop="group_id">
+        <el-select
+          v-model="form.group_id"
+          placeholder="Выберите группу"
+          :disabled="disable.group_id"
+          clearable
+          style="width: 100%"
+        >
+          <el-option
+            v-for="group in groups"
+            :key="group._id"
+            :label="group._name"
+            :value="group._id"
+            @click="selectGroup(group._id)"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Роль" prop="role">
+        <el-select v-model="form.role" placeholder="Выберите роль" :disabled="disable.role" style="width: 100%">
+          <el-option v-for="role in roles" :key="role.id" :label="role.name" :value="role.id" />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <div>
@@ -22,8 +52,11 @@
       <el-main style="border-right: none">
         <el-scrollbar>
           <el-table :data="filterTableData" border stripe highlight-current-row style="width: 100%">
-            <el-table-column fixed="left" sortable prop="_name" label="Дисциплина" />
-            <el-table-column sortable prop="short_name" label="Короткое название" />
+            <el-table-column fixed="left" sortable prop="_login" label="Логин" />
+            <el-table-column sortable prop="_name" label="Имя пользователя" />
+            <el-table-column sortable prop="email" label="Электронная почта" />
+            <el-table-column sortable prop="group" label="Группы" />
+            <el-table-column sortable prop="role" label="Роль" />
             <el-table-column align="center" width="150ch">
               <template #header>
                 <el-input v-model="search" placeholder="Поиск" />
@@ -61,14 +94,38 @@ export default {
   setup() {
     const form = reactive({
       id: null,
+      login: "",
+      password: "",
       name: "",
-      short_name: ""
+      email: "",
+      group_id: "",
+      group: "",
+      role: ""
     });
     const disable = reactive({
+      login: false,
+      password: false,
       name: false,
-      short_name: false,
+      email: false,
+      group_id: false,
+      role: false,
       submit: false
     });
+    const groups = ref([]);
+    const roles = ref([
+      { id: "administrator", name: "Администратор" },
+      { id: "teacher", name: "Преподаватель" },
+      { id: "student", name: "Студент" }
+    ]);
+    const loadGroups = () => {
+      axios({ method: "get", url: "/api/v1/group" })
+        .then((data) => {
+          return (groups.value = data.data);
+        })
+        .catch((error) => {
+          return error;
+        });
+    };
     const toggleAll = () => {
       Object.keys(disable).forEach((key) => {
         disable[key] = !disable[key];
@@ -84,7 +141,7 @@ export default {
     const drawer = ref(false);
     const loadData = () =>
       axios
-        .get("/api/v1/subjects")
+        .get("/api/v1/users")
         .then((data) => {
           tableData.value = data.data;
         })
@@ -123,28 +180,45 @@ export default {
         });
     };
     const deleteRecord = (id) => {
-      sendData("post", "/api/v1/subjects/delete", { id: id }, "Удалить не удалось!", "Запись удалена!")
-    }
+      sendData("post", "/api/v1/user/delete", { id: id }, "Удалить не удалось!", "Запись удалена!");
+    };
     const submitAdd = () => {
+      if (groups.value.length == 0) loadGroups();
+      toggleAllOff();
       form.id = null;
+      form.login = "";
+      form.password = "";
       form.name = "";
-      form.short_name = "";
+      form.email = "";
+      form.group_id = "";
+      form.role = "";
       drawer.value = true;
     };
     const submitEdit = (data) => {
+      if (groups.value.length == 0) loadGroups();
+      console.log(data)
       form.id = data._id;
+      form.login = data._login;
+      disable.login = true;
+      form.password = "";
       form.name = data._name;
-      form.short_name = data.short_name;
+      form.email = data.email;
+      form.group_id = data.group_id;
+      form.role = data.role;
       drawer.value = true;
+    };
+    const selectGroup = (group_id) => {
+      form.group_id = group_id;
     };
     const submitForm = () => {
       formRef.value.validate((valid) => {
+        console.log(form)
         if (valid) {
           toggleAllOff();
           if (form.id) {
-            sendData("patch", "/api/v1/subjects", form, "Введены некорректные данные!", "Данные изменены!");
+            sendData("patch", "/api/v1/user", form, "Введены некорректные данные!", "Данные изменены!");
           } else {
-            sendData("post", "/api/v1/subjects", form, "Введены некорректные данные!", "Данные добавлены!");
+            sendData("post", "/api/v1/user", form, "Введены некорректные данные!", "Данные добавлены!");
           }
           toggleAll();
           return true;
@@ -154,19 +228,26 @@ export default {
     };
     const search = ref("");
     const filterTableData = computed(() =>
-      tableData.value.filter(
-        (data) => !search.value || data._name.concat(data.short_name).toLowerCase().includes(search.value.toLowerCase())
-      )
+      tableData.value.filter((data) => {
+        data.role.replace("student", "Студент").replace("teacher", "Преподаватель").replace("administrator", "Администратор");
+        return (
+          !search.value ||
+          data._login.concat(data._name, data.email, data.group_id, data.role).toLowerCase().includes(search.value.toLowerCase())
+        );
+      })
     );
     onBeforeMount(() => {
       loadData();
     });
 
     return {
+      groups,
+      roles,
       tableData,
       drawer,
       form,
       rules,
+      selectGroup,
       submitForm,
       disable,
       formRef,

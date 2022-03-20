@@ -7,6 +7,7 @@ import MainPage from "./pages/main/MainPage.vue";
 import DocumentsPage from "./pages/documents/DocumentsPage.vue"
 import GroupsPage from "./pages/tables/GroupsPage.vue"
 import SubjectsPage from "./pages/tables/SubjectsPage.vue"
+import UsersPage from "./pages/tables/UsersPage.vue"
 
 const router = createRouter({
   history: createWebHistory(),
@@ -53,8 +54,14 @@ const router = createRouter({
       meta: { requireAuth: true },
       component: SubjectsPage,
     },
+    {
+      name: "Users",
+      path: "/users",
+      meta: { requireAuth: true },
+      component: UsersPage,
+    },
     //{ path: "/test2/:testId", component: HelloWorld, props: true },
-    //{ path: "/:404(.*)", redirect: "/test1" },
+    { path: "/:404(.*)", component: MainPage, alias: "/" },
   ],
   //linkActiveClass: "active",
 });

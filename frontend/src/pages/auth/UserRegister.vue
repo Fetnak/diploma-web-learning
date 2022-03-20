@@ -99,15 +99,7 @@ export default {
     };
     const sendData = () => {
       axios
-        .post("/api/v1/signup", {
-          login: form.login,
-          password: form.password,
-          name: form.name,
-          email: form.email,
-          group_id: form.group_id,
-          role: form.role,
-          secret_key: form.secret_key
-        })
+        .post("/api/v1/signup", form)
         .then(() => {
           router.push("/auth");
         })
