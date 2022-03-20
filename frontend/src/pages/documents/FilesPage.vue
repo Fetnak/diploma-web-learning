@@ -1,28 +1,21 @@
 <template>
   <the-header header="Файлы"></the-header>
-  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">Загрузить файл</el-button>
-  <label>
-    File
-    <input type="file" id="file" ref="file" v-on:change="onChangeFileUpload()" />
+  <label style="margin-left: 1.2rem; margin-top: 1.125rem">
+    Выберите файл
+    <input type="file" id="file" ref="file" style="margin-left: 1.2rem; margin-top: 1.125rem" @change="onChangeFileUpload()" />
   </label>
-  <el-upload
-    ref="upload"
-    action="http://localhost:3000/api/v1/file/upload/"
-    :limit="1"
-    :on-exceed="onChangeFileUpload"
-    :auto-upload="false"
-  >
-    <el-button type="primary">Click to upload</el-button>
-    <template #tip>
-      <div class="el-upload__tip">jpg/png files with a size less than 500kb</div>
-    </template>
-  </el-upload>
-  <el-button type="primary" @click="submitUpload">asdasdasdasd</el-button>
+  <el-button type="primary" style="margin-left: 1.2rem" @click="submitUpload">Загрузить файл</el-button>
   <el-drawer v-model="drawer" title="Загрузить файл" :with-header="false">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
-      <el-form-item label="Ключ" prop="key">
-        <el-input v-model="form.key" :disabled="disable.key" maxlength="255" clearable></el-input>
+      <el-form-item label="Название файла" prop="name">
+        <el-input v-model="form.name" :disabled="disable.name" maxlength="255" clearable></el-input>
       </el-form-item>
+      <el-switch
+        v-model="form.public"
+        size="large"
+        active-text="Сделать файл общедоступным"
+        style="margin-left: 1rem; margin-top: 1rem"
+      />
       <el-form-item>
         <div>
           <el-button type="primary" :loading="disable.submit" @click="submitForm()">Подтвердить</el-button>
@@ -36,7 +29,13 @@
         <el-scrollbar>
           <el-table :data="filterTableData" border stripe highlight-current-row style="width: 100%">
             <el-table-column fixed="left" sortable prop="_name" label="Название файла" />
-            <el-table-column sortable prop="_public" label="Доступность" />
+            <el-table-column prop="_public" label="Доступность" width="200">
+              <template #default="scope">
+                <el-tag :type="scope.row._public ? 'success' : 'danger'" disable-transitions>
+                  {{ scope.row._public ? "Открыт" : "Закрыт" }}
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column align="center" width="150ch">
               <template #header>
                 <el-input v-model="search" placeholder="Поиск" />
@@ -47,7 +46,7 @@
                 <el-popconfirm
                   confirm-button-text="Да"
                   cancel-button-text="Нет"
-                  title="Вы хотите удалить запись?"
+                  title="Вы хотите удалить файл?"
                   @confirm="deleteRecord(scope.row._id)"
                 >
                   <template #reference>
@@ -81,28 +80,25 @@ export default {
     submitUpload() {
       const formData = new FormData();
       formData.append("file", this.file);
-      console.log(this.file);
       axios
         .post("/api/v1/file/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data"
           }
         })
-        .then(function (data) {
-          console.log(data.data);
+        .then(() => {
+          ElMessage.success("Файл успешно загружен!");
         })
-        .catch(function () {
-          console.log("FAILURE!!");
+        .catch(() => {
+          ElMessage.error("Не удалось загрузить файл!");
         });
     },
     onChangeFileUpload() {
-      console.log(this.$refs.file);
       this.file = this.$refs.file.files[0];
     }
   },
   components: { TheHeader },
   setup() {
-    const upload = ref();
     const form = reactive({
       id: null,
       name: "",
@@ -180,27 +176,19 @@ export default {
         });
     };
     const deleteRecord = (id) => {
-      sendData("post", "/api/v1/secret_keys/delete", { id: id }, "Удалить не удалось!", "Запись удалена!");
-    };
-    const submitAdd = () => {
-      form.id = null;
-      form.key = "";
-      drawer.value = true;
+      sendData("post", "/api/v1/file/delete", { id: id }, "Удалить не удалось!", "Файл удален!");
     };
     const submitEdit = (data) => {
       form.id = data._id;
-      form.key = data._key;
+      form.name = data._name;
+      form.public = data._public;
       drawer.value = true;
     };
     const submitForm = () => {
       formRef.value.validate((valid) => {
         if (valid) {
           toggleAllOff();
-          if (form.id) {
-            sendData("patch", "/api/v1/secret_keys", form, "Введены некорректные данные!", "Данные изменены!");
-          } else {
-            sendData("post", "/api/v1/secret_keys", form, "Введены некорректные данные!", "Данные добавлены!");
-          }
+          sendData("patch", "/api/v1/file", form, "Введены некорректные данные!", "Данные изменены!");
           toggleAll();
           return true;
         }
@@ -216,7 +204,7 @@ export default {
     });
 
     return {
-      upload,
+      loadData,
       tableData,
       drawer,
       form,
@@ -227,7 +215,6 @@ export default {
       search,
       filterTableData,
       deleteRecord,
-      submitAdd,
       submitEdit,
       Download,
       Edit,

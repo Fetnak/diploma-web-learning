@@ -28,7 +28,7 @@ router.post("/api/v1/file/download", auth.student, async (req, res) => query(req
   .catch((e) => res.status(404).send(e)));
 
 // Delete file
-router.delete("/api/v1/file", auth.student, async (req, res, next) => query(req.ip, "SELECT * FROM files WHERE _id = $1 AND user_id = $2", [req.body.id, req.session.userId])
+router.post("/api/v1/file/delete", auth.student, async (req, res) => query(req.ip, "SELECT * FROM files WHERE _id = $1 AND user_id = $2", [req.body.id, req.session.userId])
   .then((file) => {
     if (file.rows.length === 0) {
       return res.status(404).send({ error: "File Not Found!" });
@@ -37,14 +37,14 @@ router.delete("/api/v1/file", auth.student, async (req, res, next) => query(req.
       if (err) throw err;
     });
     return query(req.ip, "DELETE FROM files WHERE _id = $1 AND user_id = $2", [req.body.id, req.session.userId])
-      .then((resp) => res.status(200).send(resp.rows[0]))
-      .catch((error) => next(error));
+      .then(() => res.status(200).send())
+      .catch(() => res.status(400).send());
   })
-  .catch((error) => next(error)));
+  .catch(() => res.status(400).send()));
 
 // Update file
-router.patch("/api/v1/file", auth.student, async (req, res) => query(req.ip, "UPDATE files SET (_name, _public) = ($1, $2) WHERE _id = $3 AND user_id = $3", [req.body.name, req.body.public, req.body.id, req.session.userId])
-  .then((resp) => res.status(200).send(resp))
-  .catch((e) => res.status(500).send(e)));
+router.patch("/api/v1/file", auth.student, async (req, res) => query(req.ip, "UPDATE files SET (_name, _public) = ($1, $2) WHERE _id = $3 AND user_id = $4", [req.body.name, req.body.public, req.body.id, req.session.userId])
+  .then(() => res.status(200).send())
+  .catch(() => res.status(400).send()));
 
 export default router;
