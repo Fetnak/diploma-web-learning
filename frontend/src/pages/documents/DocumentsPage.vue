@@ -3,7 +3,9 @@
   <el-button :icon="Back" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="selectPreviousFolder()">
     Назад
   </el-button>
-  <el-button type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">Добавить документ</el-button>
+  <el-button v-if="Role !== 'student'" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
+    Добавить документ
+  </el-button>
   <el-drawer v-model="drawer" title="Добавить документ" :with-header="false">
     <el-form ref="formRef" class="form" label-position="top" :model="form" :rules="rules">
       <el-form-item label="Название документа" prop="name">
@@ -84,8 +86,16 @@
                   style="margin-left: auto"
                   @click="DownloadFile(scope.row)"
                 />
-                <el-button type="primary" :icon="Edit" circle style="margin-rightleft: auto" @click="submitEdit(scope.row)" />
+                <el-button
+                  v-if="Role !== 'student'"
+                  type="primary"
+                  :icon="Edit"
+                  circle
+                  style="margin-rightleft: auto"
+                  @click="submitEdit(scope.row)"
+                />
                 <el-popconfirm
+                  v-if="Role !== 'student'"
                   confirm-button-text="Да"
                   cancel-button-text="Нет"
                   title="Вы хотите удалить запись?"
@@ -106,6 +116,7 @@
 
 <script>
 import { ref, reactive, computed, onBeforeMount } from "vue";
+import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
 import { Download, Edit, Delete, Back } from "@element-plus/icons-vue";
 import axios from "../../store/axios.js";
@@ -114,6 +125,7 @@ import TheHeader from "../../components/layuot/TheHeader.vue";
 export default {
   components: { TheHeader },
   setup() {
+    const store = new useStore();
     const form = reactive({
       id: null,
       name: "",
@@ -129,6 +141,12 @@ export default {
       group_id: false,
       file_id: false,
       submit: false
+    });
+    const Role = computed(() => {
+      if (store.getters.getUserData) {
+        store.dispatch("getUserData");
+      }
+      return store.getters.getUserData.UserRole;
     });
     const groups = ref([]);
     const loadGroups = () => {
@@ -167,7 +185,7 @@ export default {
           const blob = new Blob([res.data], { type: fileInfo.mimetype });
           const docUrl = document.createElement("a");
           docUrl.href = URL.createObjectURL(blob);
-          console.log(fileInfo)
+          console.log(fileInfo);
           docUrl.setAttribute("download", fileInfo.file_name);
           document.body.appendChild(docUrl);
           docUrl.click();
@@ -203,23 +221,23 @@ export default {
         .catch(() => {
           ElMessage.error("Неизвестная ошибка!");
         });
-    const choosenDocument = ref("")
+    const choosenDocument = ref("");
     const selectFolder = async (data) => {
-      choosenDocument.value = data._id
-      await loadData()
-    }
+      choosenDocument.value = data._id;
+      await loadData();
+    };
     const selectPreviousFolder = async () => {
       await axios
         .post("/api/v1/documents/read/root", { id: choosenDocument.value })
         .then(async (data) => {
-          console.log(data.data.document_id)
+          console.log(data.data.document_id);
           choosenDocument.value = data.data.document_id ? data.data.document_id : "";
           await loadData();
         })
         .catch(() => {
           ElMessage.error("Неизвестная ошибка!");
         });
-    }
+    };
     const rules = reactive({
       name: [
         {
@@ -257,14 +275,14 @@ export default {
       form.document_id = null;
       form.subject_id = null;
       form.group_id = null;
-      form.file_id = null
+      form.file_id = null;
       drawer.value = true;
     };
     const submitEdit = (data) => {
       if (groups.value.length == 0) loadGroups();
       if (subjects.value.length == 0) loadSubjects();
       if (files.value.length == 0) loadFiles();
-      console.log(data)
+      console.log(data);
       form.id = data._id;
       form.name = data._name;
       form.document_id = data.document_id;
@@ -300,10 +318,7 @@ export default {
     const search = ref("");
     const filterTableData = computed(() =>
       tableData.value.filter((data) => {
-        return (
-          !search.value ||
-          data._name.toLowerCase().includes(search.value.toLowerCase())
-        );
+        return !search.value || data._name.toLowerCase().includes(search.value.toLowerCase());
       })
     );
     onBeforeMount(() => {
@@ -336,7 +351,8 @@ export default {
       Edit,
       Download,
       Delete,
-      Back
+      Back,
+      Role
     };
   }
 };

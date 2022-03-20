@@ -1,11 +1,5 @@
 <template>
   <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
-    <el-menu-item index="/">
-      <template #title>
-        <el-icon><home-filled /></el-icon>
-        <span>Информация</span>
-      </template>
-    </el-menu-item>
     <el-menu-item index="/documents">
       <template #title>
         <el-icon><list /></el-icon>
@@ -18,8 +12,8 @@
         <span>Файлы</span>
       </template>
     </el-menu-item>
-    <el-sub-menu index="Other">
-      <template #title>Прочее</template>
+    <el-sub-menu index="Other" v-if="Role === 'administrator'">
+      <template #title>Справочники</template>
       <el-menu-item index="/groups">
         <template #title>
           <el-icon><document-copy /></el-icon>
@@ -64,16 +58,14 @@
 </template>
 
 <script>
-import { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy, Document } from "@element-plus/icons-vue";
+import { List, Avatar, Management, UserFilled, Key, DocumentCopy, Document } from "@element-plus/icons-vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
 export default {
-  components: { HomeFilled, List, Avatar, Management, UserFilled, Key, DocumentCopy, Document },
+  components: { List, Avatar, Management, UserFilled, Key, DocumentCopy, Document },
   props: ["header"],
-  emits: [],
-  methods: {},
   setup() {
     const activeIndex = computed(() => router.currentRoute.value.path);
     const router = useRouter();
@@ -84,6 +76,13 @@ export default {
         store.dispatch("getUserData");
       }
       return store.getters.getUserData.UserName;
+    });
+
+    const Role = computed(() => {
+      if (store.getters.getUserData) {
+        store.dispatch("getUserData");
+      }
+      return store.getters.getUserData.UserRole;
     });
 
     const handleSelect = (key) => {
@@ -99,7 +98,8 @@ export default {
       activeIndex,
       handleSelect,
       logout,
-      UserName
+      UserName,
+      Role
     };
   }
 };
