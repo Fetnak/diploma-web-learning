@@ -275,7 +275,6 @@ export default {
     const search = ref("");
     const filterTableData = computed(() =>
       tableData.value.filter((data) => {
-        data.role.replace("student", "Студент").replace("teacher", "Преподаватель").replace("administrator", "Администратор");
         return (
           !search.value ||
           data._login.concat(data._name, data.email, data.group_id, data.role).toLowerCase().includes(search.value.toLowerCase())

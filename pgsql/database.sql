@@ -77,7 +77,7 @@ CREATE INDEX idx_session_expire ON "session" (expire);
 CREATE TABLE files (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
     _name varchar(255) NOT NULL,
-    mimetype varchar(64) NOT NULL,
+    mimetype varchar(255) NOT NULL,
     user_id uuid NOT NULL,
     filepath text NOT NULL,
     _public boolean DEFAULT false

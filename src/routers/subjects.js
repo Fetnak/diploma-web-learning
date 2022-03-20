@@ -17,7 +17,7 @@ router.post("/api/v1/subjects", auth.administrator, async (req, res, next) => qu
   .catch((error) => next(error)));
 
 // Read subjects
-router.get("/api/v1/subjects", auth.teacher, async (req, res, next) => {
+router.get("/api/v1/subjects", auth.student, async (req, res, next) => {
   query(req.ip, "SELECT * FROM subjects")
     .then((resp) => res.status(200).send(resp.rows))
     .catch((error) => next(error));

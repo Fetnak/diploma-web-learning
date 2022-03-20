@@ -9,7 +9,7 @@
     <el-menu-item index="/documents">
       <template #title>
         <el-icon><list /></el-icon>
-        <span>Задания</span>
+        <span>Документы</span>
       </template>
     </el-menu-item>
     <el-menu-item index="/files">

@@ -1,39 +1,35 @@
 import express from "express";
-import { v4 as uuidv4 } from "uuid";
 import auth from "../middleware/auth.js";
 import query from "../db/query.js";
 
 const router = new express.Router();
 
 // Create new document
-router.post("/api/v1/documents/create", auth.student, async (req, res) => {
-  if (req.user.rows.length === 0) {
-    return res.status(401).send({ error: "Authenticate please!" });
-  }
-
-  const checkedValues = {
-    id: uuidv4(),
-    name: req.body.name,
-    document_id: req.body.document_id,
-    subject_id: req.body.subject_id,
-    group_id: req.body.group_id,
-    file_id: req.body.file_id
-  };
-
+router.post("/api/v1/documents", auth.teacher, async (req, res) => {
+  console.log(req.body);
   return query(
     req.ip,
-    "INSERT INTO documents (_id, _name, document_id, subject_id, group_id, file_id) VALUES ($1, $2, $3, $4, $5, $6)",
+    "INSERT INTO documents (_name, document_id, subject_id, group_id, file_id) VALUES ($1, $2, $3, $4, $5)",
     [
-      checkedValues.id,
-      checkedValues.name,
-      checkedValues.document_id,
-      checkedValues.subject_id,
-      checkedValues.group_id,
-      checkedValues.file_id
+      req.body.name,
+      req.body.document_id,
+      req.body.subject_id,
+      req.body.group_id,
+      req.body.file_id
     ]
   )
-    .then((resp) => res.status(201).send({ id: checkedValues.id, resp }))
-    .catch((e) => res.status(400).send(e));
+    .then((resp) => res.status(201).send(console.log(resp)))
+    .catch((error) => res.status(400).send(console.log(error)));
+});
+
+// Read all documents
+router.post("/api/v1/documents/admin/read", auth.teacher, async (req, res) => {
+  query(
+    req.ip,
+    "SELECT documents._id, documents._name, document_id, subject_id, group_id, file_id, groups._name AS group_name, subjects._name AS subject_name, files.mimetype FROM documents LEFT JOIN groups ON documents.group_id = groups._id LEFT JOIN subjects ON documents.subject_id = subjects._id LEFT JOIN files ON documents.file_id = documents._id"
+  )
+    .then((resp) => res.status(200).send(resp.rows))
+    .catch(() => res.status(400).send());
 });
 
 // Read all documents for current user's group
@@ -45,6 +41,28 @@ router.get("/api/v1/documents/read", auth.student, async (req, res) => {
   )
     .then((resp) => res.status(200).send(resp.rows))
     .catch((e) => res.status(400).send(e));
+});
+
+// Update document
+router.patch("/api/v1/documents", auth.teacher, async (req, res) => {
+  query(
+    req.ip,
+    "UPDATE documents SET (_name, subject_id, group_id, file_id) = ($1, $2, $3, $4) WHERE _id = $5",
+    [req.body.name, req.body.subject_id, req.body.group_id, req.body.file_id, req.body.id]
+  )
+    .then(() => res.status(200).send())
+    .catch(() => res.status(400).send());
+});
+
+// Delete document
+router.post("/api/v1/documents/delete", auth.teacher, async (req, res) => {
+  query(
+    req.ip,
+    "DELETE FROM documents WHERE _id = $1",
+    [req.body.id]
+  )
+    .then(() => res.status(200).send())
+    .catch(() => res.status(400).send());
 });
 
 export default router;
