@@ -3,7 +3,7 @@
     <el-menu-item index="/documents">
       <template #title>
         <el-icon><list /></el-icon>
-        <span>Документы</span>
+        <span>Учебные материалы</span>
       </template>
     </el-menu-item>
     <el-menu-item index="/files">
@@ -47,7 +47,6 @@
           <el-icon style="margin: auto"><user-filled /></el-icon>
         </el-avatar>
       </template>
-      <el-menu-item index="/settings">Настройки</el-menu-item>
       <el-popconfirm confirm-button-text="Да" cancel-button-text="Нет" title="Вы хотите выйти из аккаунта?" @confirm="logout()">
         <template #reference>
           <el-menu-item index="">Выйти из аккаунта</el-menu-item>

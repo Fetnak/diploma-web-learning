@@ -15,12 +15,9 @@ const upload = multer({
 });
 
 // Upload new file
-router.post("/api/v1/file/upload", upload.single("file"), auth.student, async (req, res) => {
-  console.log(req.file);
-  return query(req.ip, "INSERT INTO files (_name, mimetype, user_id, filepath) VALUES ($1, $2, $3, $4)", [req.file.originalname, req.file.mimetype, req.session.userId, req.file.path])
-    .then((resp) => res.status(201).send(console.log(resp)))
-    .catch((error) => res.status(400).send(console.log(error)));
-});
+router.post("/api/v1/file/upload", upload.single("file"), auth.student, async (req, res) => query(req.ip, "INSERT INTO files (_name, mimetype, user_id, filepath) VALUES ($1, $2, $3, $4)", [req.file.originalname, req.file.mimetype, req.session.userId, req.file.path])
+  .then(() => res.status(201).send())
+  .catch(() => res.status(400).send()));
 
 // Read all files for current user
 router.get("/api/v1/files", auth.student, async (req, res) => query(req.ip, "SELECT _id, _name, mimetype, filepath, _public FROM files WHERE user_id = $1", [req.session.userId]).then((resp) => res.status(200).send(resp.rows)).catch((e) => res.status(400).send(e)));

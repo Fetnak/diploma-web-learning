@@ -5,22 +5,19 @@ import query from "../db/query.js";
 const router = new express.Router();
 
 // Create new document
-router.post("/api/v1/documents", auth.teacher, async (req, res) => {
-  console.log(req.body);
-  return query(
-    req.ip,
-    "INSERT INTO documents (_name, document_id, subject_id, group_id, file_id) VALUES ($1, $2, $3, $4, $5)",
-    [
-      req.body.name,
-      req.body.document_id,
-      req.body.subject_id,
-      req.body.group_id,
-      req.body.file_id
-    ]
-  )
-    .then((resp) => res.status(201).send(console.log(resp)))
-    .catch((error) => res.status(400).send(console.log(error)));
-});
+router.post("/api/v1/documents", auth.teacher, async (req, res) => query(
+  req.ip,
+  "INSERT INTO documents (_name, document_id, subject_id, group_id, file_id) VALUES ($1, $2, $3, $4, $5)",
+  [
+    req.body.name,
+    req.body.document_id,
+    req.body.subject_id,
+    req.body.group_id,
+    req.body.file_id
+  ]
+)
+  .then(() => res.status(201).send())
+  .catch(() => res.status(400).send()));
 
 // Read all documents
 router.post("/api/v1/documents/read", auth.student, async (req, res) => {
@@ -36,7 +33,7 @@ router.post("/api/v1/documents/read", auth.student, async (req, res) => {
 });
 
 // Read root document
-router.post("/api/v1/documents/read/root", auth.teacher, async (req, res) => query(req.ip, "SELECT document_id FROM documents WHERE _id = $1", [req.body.id])
+router.post("/api/v1/documents/read/root", auth.student, async (req, res) => query(req.ip, "SELECT document_id FROM documents WHERE _id = $1", [req.body.id])
   .then((resp) => res.status(200).send(resp.rows[0]))
   .catch(() => res.status(400).send()));
 

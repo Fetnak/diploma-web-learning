@@ -4,7 +4,6 @@ import cors from "cors";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import postgres from "./db/postgres.js";
-import testRouter from "./routers/test.js";
 import usersRouter from "./routers/users.js";
 import filesRouter from "./routers/files.js";
 import groupsRouter from "./routers/groups.js";
@@ -38,7 +37,6 @@ app.use([
   }),
   sessionMiddleware,
   express.json(),
-  testRouter,
   usersRouter,
   filesRouter,
   documentsRouter,

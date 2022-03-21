@@ -1,5 +1,5 @@
 <template>
-  <the-header header="Документы"></the-header>
+  <the-header header="Учебные материалы"></the-header>
   <el-button :icon="Back" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="selectPreviousFolder()">
     Назад
   </el-button>
@@ -272,7 +272,7 @@ export default {
       toggleAllOff();
       form.id = null;
       form.name = "";
-      form.document_id = null;
+      form.document_id = choosenDocument.value;
       form.subject_id = null;
       form.group_id = null;
       form.file_id = null;
