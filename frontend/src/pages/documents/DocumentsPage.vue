@@ -272,7 +272,7 @@ export default {
       toggleAllOff();
       form.id = null;
       form.name = "";
-      form.document_id = choosenDocument.value;
+      form.document_id = (choosenDocument.value === "" ? null : choosenDocument.value);
       form.subject_id = null;
       form.group_id = null;
       form.file_id = null;

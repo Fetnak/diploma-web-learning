@@ -100,8 +100,8 @@ CREATE TABLE documents (
 	_id uuid DEFAULT gen_random_uuid() NOT NULL,
     _name varchar(255) NOT NULL,
     document_id uuid,
-    subject_id uuid NOT NULL,
-    group_id uuid NOT NULL,
+    subject_id uuid,
+    group_id uuid,
     file_id uuid,
     _required boolean DEFAULT false
 );
