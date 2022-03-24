@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
+import compression from "compression";
 import postgres from "./db/postgres.js";
 import usersRouter from "./routers/users.js";
 import filesRouter from "./routers/files.js";
@@ -37,6 +38,7 @@ app.use([
   }),
   sessionMiddleware,
   express.json(),
+  compression(),
   usersRouter,
   filesRouter,
   documentsRouter,

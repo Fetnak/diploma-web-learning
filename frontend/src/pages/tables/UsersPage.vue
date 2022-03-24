@@ -7,7 +7,7 @@
     v-model="activated"
     size="large"
     active-text="Отобразить отключенные аккаунты"
-    style="margin-left: 1rem; margin-top: 1rem;"
+    style="margin-left: 1rem; margin-top: 1rem"
     @click="loadData()"
   />
   <el-drawer v-model="drawer" title="Добавить пользователя" :with-header="false">
@@ -62,7 +62,19 @@
             <el-table-column sortable prop="_name" label="Имя пользователя" />
             <el-table-column sortable prop="email" label="Электронная почта" />
             <el-table-column sortable prop="group" label="Группа" />
-            <el-table-column sortable prop="role" label="Роль" />
+            <el-table-column sortable prop="role" label="Роль">
+              <template #default="scope">
+                <el-tag :type="success" disable-transitions>
+                  {{
+                    scope.row.role === "administrator"
+                      ? "Администратор"
+                      : scope.row.role === "teacher"
+                      ? "Преподаватель"
+                      : "Студент"
+                  }}
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column align="center" width="150ch">
               <template #header>
                 <el-input v-model="search" placeholder="Поиск" />
@@ -80,7 +92,6 @@
                   </template>
                 </el-popconfirm>
                 <el-popconfirm
-                
                   v-if="activated"
                   confirm-button-text="Да"
                   cancel-button-text="Нет"
@@ -110,7 +121,7 @@ import TheHeader from "../../components/layuot/TheHeader.vue";
 export default {
   components: { TheHeader },
   setup() {
-    const activated = ref(false)
+    const activated = ref(false);
     const form = reactive({
       id: null,
       login: "",
@@ -157,14 +168,14 @@ export default {
       });
     };
     const deactivateMessage = () => {
-      return ((activated.value) ? `Вы хотите активировать запись?` : `Вы хотите отключить запись?`)
-    }
+      return activated.value ? `Вы хотите активировать запись?` : `Вы хотите отключить запись?`;
+    };
     const tableData = ref([]);
     const formRef = ref(null);
     const drawer = ref(false);
     const loadData = () =>
       axios
-        .post("/api/v1/users/read", {activated: !activated.value})
+        .post("/api/v1/users/read", { activated: !activated.value })
         .then((data) => {
           tableData.value = data.data;
         })
@@ -224,7 +235,13 @@ export default {
         });
     };
     const deactivateRecord = (id) => {
-      sendData("post", "/api/v1/user/deactivate", { id: id, activated: activated.value }, "Отключить не удалось!", ((activated.value) ? "Запись активирована!" : "Запись отключена!"));
+      sendData(
+        "post",
+        "/api/v1/user/deactivate",
+        { id: id, activated: activated.value },
+        "Отключить не удалось!",
+        activated.value ? "Запись активирована!" : "Запись отключена!"
+      );
     };
     const deleteRecord = (id) => {
       sendData("post", "/api/v1/user/delete", { id: id }, "Удалить не удалось!", "Запись удалена!");
@@ -243,7 +260,7 @@ export default {
     };
     const submitEdit = (data) => {
       if (groups.value.length == 0) loadGroups();
-      console.log(data)
+      console.log(data);
       form.id = data._id;
       form.login = data._login;
       disable.login = true;
@@ -277,7 +294,7 @@ export default {
       tableData.value.filter((data) => {
         return (
           !search.value ||
-          data._login.concat(data._name, data.email, data.group_id, data.role).toLowerCase().includes(search.value.toLowerCase())
+          data._login.concat(data._name, data.email, data.group, data.role).toLowerCase().includes(search.value.toLowerCase())
         );
       })
     );

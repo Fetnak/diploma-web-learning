@@ -1,6 +1,6 @@
 <template>
   <the-header header="Учебные материалы"></the-header>
-  <el-button :icon="Back" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="selectPreviousFolder()">
+  <el-button v-if="backButtonVisible()" :icon="Back" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="selectPreviousFolder()">
     Назад
   </el-button>
   <el-button v-if="Role !== 'student'" type="primary" style="margin-left: 1.2rem; margin-top: 1.125rem" @click="submitAdd()">
@@ -318,14 +318,17 @@ export default {
     const search = ref("");
     const filterTableData = computed(() =>
       tableData.value.filter((data) => {
-        return !search.value || data._name.toLowerCase().includes(search.value.toLowerCase());
+        return !search.value || data._name.concat(data.subject_name, data.group_name).toLowerCase().includes(search.value.toLowerCase());
       })
     );
+    const backButtonVisible = () => {
+      return choosenDocument.value === "" || choosenDocument.value === null ? false : true
+    }
     onBeforeMount(() => {
       loadData();
     });
-
     return {
+      backButtonVisible,
       selectPreviousFolder,
       selectFolder,
       DownloadFile,
