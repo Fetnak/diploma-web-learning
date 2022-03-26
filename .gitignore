@@ -9,6 +9,9 @@ lerna-debug.log*
 # VS Code settings
 .vscode/
 
+# Compiled frontend
+public/
+
 # Files
 files/
 

@@ -7,7 +7,7 @@
       <el-form-item label="Пароль" prop="password">
         <el-input v-model="form.password" :disabled="disable.password" maxlength="128" type="password"></el-input>
       </el-form-item>
-      <el-form-item label="Ф.И.О." prop="name">
+      <el-form-item label="Имя" prop="name">
         <el-input v-model="form.name" :disabled="disable.name" maxlength="255" clearable></el-input>
       </el-form-item>
       <el-form-item label="Электронная почта" prop="email">
@@ -131,7 +131,7 @@ export default {
     const rules = reactive({
       login: [{ required: true, message: "Логин обязателен", trigger: "blur" }],
       password: [{ required: true, message: "Пароль обязателен", trigger: "blur" }],
-      name: [{ required: true, message: "Ф.И.О. обязателено", trigger: "blur" }],
+      name: [{ required: true, message: "Имя обязателено", trigger: "blur" }],
       email: [{ required: true, message: "Электронная почта обязателена", trigger: "blur" }],
       role: [{ required: true, message: "Роль обязателена", trigger: "blur" }],
       secret_key: [{ required: true, message: "Секретный ключ обязателен", trigger: "blur" }]
